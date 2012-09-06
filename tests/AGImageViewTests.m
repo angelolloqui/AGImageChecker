@@ -12,6 +12,7 @@
 
 @implementation AGImageViewTests
 
+@synthesize bundle;
 @synthesize squareBigImage;
 @synthesize squareSmallImage;
 @synthesize rectImage;
@@ -20,19 +21,22 @@
 @synthesize rectView;
 
 - (void) setUp {
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    [[UIScreen mainScreen] setValue:[NSNumber numberWithInt:1] forKey:@"scale"];
+    
+    [[AGImageChecker sharedInstance] start];
+    self.bundle = [NSBundle bundleForClass:[self class]];
     self.squareSmallImage = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_small_image" ofType:@"png"]];
     self.squareBigImage = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_big_image" ofType:@"png"]];
     self.rectImage = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"rect_image" ofType:@"png"]];
     self.squareSmallView = [[UIImageView alloc] initWithImage:squareSmallImage];
     self.squareBigView = [[UIImageView alloc] initWithImage:squareBigImage];
     self.rectView = [[UIImageView alloc] initWithImage:rectImage];
-    
-    [[AGImageChecker sharedInstance] start];
+
 }
 
 - (void)tearDown {
     [[AGImageChecker sharedInstance] stop];    
+    [[UIScreen mainScreen] setValue:[NSNumber numberWithInt:1] forKey:@"scale"];    
 }
 
 - (void)testImagesLoaded {
@@ -45,6 +49,30 @@
     STAssertTrue(squareSmallView.issues == AGImageCheckerIssueNone, @"The default small square image should not return issues");    
     STAssertTrue(squareBigView.issues == AGImageCheckerIssueNone, @"The default big square image  should not return issues");    
     STAssertTrue(rectView.issues == AGImageCheckerIssueNone, @"The default rect image  should not return issues");    
+}
+
+- (void)testIssuesHandlerCalled {
+    __block BOOL called = NO;
+    [UIImageView setImageIssuesHandler:^(UIImageView *imageView, AGImageCheckerIssue issues) {
+        called = YES;
+    }];    
+    squareBigView.image = squareSmallImage;
+    STAssertTrue(called, @"The drawing code should have been called when setting the image");        
+    
+    called = NO;
+    squareBigView.contentMode = UIViewContentModeTop;
+    STAssertTrue(called, @"The drawing code should have been called when setting the contentMode");        
+    
+    called = NO;
+    squareBigView.frame = squareSmallView.frame;
+    STAssertTrue(called, @"The drawing code should have been called when setting the frame");        
+}
+
+- (void)testDecodingImageGivesNoIssue {
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:squareBigView];
+    UIImageView *restoredImageView = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    STAssertNotNil(restoredImageView, @"The restored image should be loaded");
+    STAssertTrue(restoredImageView.issues == AGImageCheckerIssueNone, @"The restored image should have no issues");
 }
 
 - (void)testRectImageSizeGivesNoIssueForAllContentModes {
@@ -161,6 +189,41 @@
     
     squareBigView.contentMode = UIViewContentModeScaleToFill;
     STAssertTrue(squareBigView.issues != (AGImageCheckerIssueNone), @"The big image on mode fill should have issues displaying the small image");    
+}
+
+- (void)testStretchableImageProducesNoIssue {
+    squareBigView.contentMode = UIViewContentModeScaleToFill;
+    squareBigView.image = [rectImage resizableImageWithCapInsets:UIEdgeInsetsMake(5, 5, 5, 5)];
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueNone), @"The big image on mode fill should have no issues displaying a resizable image");        
+}
+
+- (void)testMissingImageProducesIssue {
+    squareBigView.image = nil;
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueMissing), @"A nil image should have issue Missing");        
+}
+
+- (void)testRetinaDisplayProducesIssueInNonRetinaImages {
+    [[UIScreen mainScreen] setValue:[NSNumber numberWithInt:2] forKey:@"scale"];
+    squareBigView.contentMode = UIViewContentModeScaleAspectFit;
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueResized | AGImageCheckerIssueBlurry), @"The image in retina should have issues Resized and Blurry");        
+}
+
+- (void)testRetinaDisplayWorksWithNonRetinaImageButDouble {
+    [[UIScreen mainScreen] setValue:[NSNumber numberWithInt:2] forKey:@"scale"];
+    squareBigView.contentMode = UIViewContentModeScaleAspectFit;
+    squareBigView.image = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_big_image_2x" ofType:@"png"]];
+    STAssertNotNil(squareBigView.image, @"Retina image could not be loaded");
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueNone), @"The image with the correct retina asset should have no issues");        
+}
+
+- (void)testRetinaDisplayWorksWithRetinaImage {
+    [[UIScreen mainScreen] setValue:[NSNumber numberWithInt:2] forKey:@"scale"];
+    squareBigView.contentMode = UIViewContentModeScaleAspectFit;
+    UIImage *img = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_big_image_2x" ofType:@"png"]];
+    [img setValue:[NSNumber numberWithInt:2] forKey:@"scale"];
+    squareBigView.image = img;
+    STAssertNotNil(squareBigView.image, @"Retina image could not be loaded");
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueNone), @"The image with the correct retina asset should have no issues");            
 }
 
 

@@ -7,7 +7,6 @@
 //
 
 #import "UIImageView+AGImageChecker.h"
-#import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
 #define CGSizeIsBiggerThan(size1, size2) ((size1.width > size2.width) && (size1.height > size2.height))
@@ -23,6 +22,12 @@
 + (void)stopCheckingImages {
     [self swizzle];
 }
+static AGImageIssuesHandler sIssuesHandler = nil;
++ (void)setImageIssuesHandler:(AGImageIssuesHandler)handler {
+    sIssuesHandler = [handler copy];
+}
+
+#pragma mark Swizzling methods
 
 + (void)swizzle {
     //Swizzle the original setImage method to add our own calls
@@ -39,116 +44,115 @@
     Method setContentModeOriginal = class_getInstanceMethod(self, @selector(setContentMode:));
     Method setContentModeCustom = class_getInstanceMethod(self, @selector(setContentModeCustom:));
     method_exchangeImplementations(setContentModeOriginal, setContentModeCustom);    
+    
+    //Swizzle the original setFrame method to add our own calls
+    Method setInitWithCoderOriginal = class_getInstanceMethod(self, @selector(initWithCoder:));
+    Method setInitWithCoderCustom = class_getInstanceMethod(self, @selector(initWithCoderCustom:));
+    method_exchangeImplementations(setInitWithCoderOriginal, setInitWithCoderCustom);    
 }
 
-#pragma mark Swizzled methods
-
 - (void)setImageCustom:(UIImage *)image {
-    //Call the original method (was swizzled)
-    [self setImageCustom:image];        
-    [self checkImage];
+    if ([self isKindOfClass:[UIImageView class]]) {
+        //Call the original method (was swizzled)
+        [self setImageCustom:image];        
+        [self checkImage];
+    }
 }
 
 - (void)setFrameCustom:(CGRect)frame {
-    //Call the original method (was swizzled)
-    [self setFrameCustom:frame];    
-    [self checkImage];
+    if ([self isKindOfClass:[UIImageView class]]) {
+        //Call the original method (was swizzled)
+        [self setFrameCustom:frame];    
+        [self checkImage];
+    }
 }
 
 - (void)setContentModeCustom:(UIViewContentMode)mode {
-    //Call the original method (was swizzled)
-    [self setContentModeCustom:mode];    
-    [self checkImage];
+    if ([self isKindOfClass:[UIImageView class]]) {
+        //Call the original method (was swizzled)
+        [self setContentModeCustom:mode];    
+        [self checkImage];
+    }
 }
 
+- (id)initWithCoderCustom:(NSCoder *)aDecoder {
+    if ([self isKindOfClass:[UIImageView class]]) {
+        //Call the original method (was swizzled)
+        self = [self initWithCoderCustom:aDecoder];    
+        [self checkImage];
+    }
+    return self;
+}
 
 #pragma mark Checking and drawing
 
 - (void)checkImage {
     AGImageCheckerIssue issues = AGImageCheckerIssueNone;
-    CGSize imgSize = self.image.size;
-    CGSize viewSize = self.bounds.size;
-
-    if (self.contentMode == UIViewContentModeScaleAspectFill) {        
-        if ((imgSize.width != viewSize.width) && (imgSize.height != viewSize.height)) {
-            issues |= AGImageCheckerIssueResized;
-        }
-        if (CGSizeIsBiggerThan(viewSize, imgSize)) {
-            issues |= AGImageCheckerIssueBlurry;
-        }        
-        if (!CGSizeIsProportionalTo(viewSize, imgSize)){
-            issues |= AGImageCheckerIssuePartiallyHidden;
-        }
+    if (self.image == nil) {
+        issues = AGImageCheckerIssueMissing;
     }
-    else if (self.contentMode == UIViewContentModeScaleAspectFit) {
-        if (CGSizeIsBiggerThan(viewSize, imgSize)) {
-            issues |= AGImageCheckerIssueResized;
-            issues |= AGImageCheckerIssueBlurry;
-        }        
-        else if (CGSizeIsBiggerThan(imgSize, viewSize)) {
-            issues |= AGImageCheckerIssueResized;
-        }        
-    }
-    else if (self.contentMode == UIViewContentModeScaleToFill) {
-        if (CGSizeIsBiggerThan(viewSize, imgSize)) {
-            issues |= AGImageCheckerIssueResized;
-            issues |= AGImageCheckerIssueBlurry;
-        }        
-        else if (CGSizeIsBiggerThan(imgSize, viewSize)) {
-            issues |= AGImageCheckerIssueResized;
-        }
-        if (!CGSizeIsProportionalTo(viewSize, imgSize)){
-            issues |= AGImageCheckerIssueStretched;
-        }
-    }
-    else {
-        if (CGSizeIsBiggerThan(imgSize, viewSize)) {
-            issues |= AGImageCheckerIssuePartiallyHidden;
-        }        
+    else if (UIEdgeInsetsEqualToEdgeInsets(self.image.capInsets, UIEdgeInsetsZero)) {       
+        CGSize imgSize = self.image.size;
+        CGSize viewSize = self.bounds.size;
         
-        //When setting to center the image can be aligned to 0.5. Check it returns blurry
-        if (self.contentMode == UIViewContentModeCenter) {
-            CGFloat deltaX = (imgSize.width - viewSize.width) / 2.0;
-            CGFloat deltaY = (imgSize.height - viewSize.height) / 2.0;
-            if ((deltaX != round(deltaX)) || (deltaY != round(deltaY))) {
+        //Retina image and view resizing
+        CGFloat imgScale = self.image.scale;
+        imgSize = CGSizeMake(imgSize.width * imgScale, imgSize.height * imgScale);        
+        CGFloat viewScale = [UIScreen mainScreen].scale;
+        viewSize = CGSizeMake(viewSize.width * viewScale, viewSize.height * viewScale);
+
+        if (self.contentMode == UIViewContentModeScaleAspectFill) {        
+            if ((imgSize.width != viewSize.width) && (imgSize.height != viewSize.height)) {
+                issues |= AGImageCheckerIssueResized;
+            }
+            if (CGSizeIsBiggerThan(viewSize, imgSize)) {
                 issues |= AGImageCheckerIssueBlurry;
+            }        
+            if (!CGSizeIsProportionalTo(viewSize, imgSize)){
+                issues |= AGImageCheckerIssuePartiallyHidden;
+            }
+        }
+        else if (self.contentMode == UIViewContentModeScaleAspectFit) {
+            if (CGSizeIsBiggerThan(viewSize, imgSize)) {
+                issues |= AGImageCheckerIssueResized;
+                issues |= AGImageCheckerIssueBlurry;
+            }        
+            else if (CGSizeIsBiggerThan(imgSize, viewSize)) {
+                issues |= AGImageCheckerIssueResized;
+            }        
+        }
+        else if (self.contentMode == UIViewContentModeScaleToFill) {
+            if (CGSizeIsBiggerThan(viewSize, imgSize)) {
+                issues |= AGImageCheckerIssueResized;
+                issues |= AGImageCheckerIssueBlurry;
+            }        
+            else if (CGSizeIsBiggerThan(imgSize, viewSize)) {
+                issues |= AGImageCheckerIssueResized;
+            }
+            if (!CGSizeIsProportionalTo(viewSize, imgSize)){
+                issues |= AGImageCheckerIssueStretched;
+            }
+        }
+        else {
+            if (CGSizeIsBiggerThan(imgSize, viewSize)) {
+                issues |= AGImageCheckerIssuePartiallyHidden;
+            }        
+            
+            //When setting to center the image can be aligned to 0.5. Check it returns blurry
+            if (self.contentMode == UIViewContentModeCenter) {
+                CGFloat deltaX = (imgSize.width - viewSize.width) / 2.0;
+                CGFloat deltaY = (imgSize.height - viewSize.height) / 2.0;
+                if ((deltaX != round(deltaX)) || (deltaY != round(deltaY))) {
+                    issues |= AGImageCheckerIssueBlurry;
+                }
             }
         }
     }
-
     self.issues = issues;
-    [self drawIssues];    
+    if (sIssuesHandler) {
+        sIssuesHandler(self, issues);
+    }
 }
-
-- (void)drawIssues {
-    AGImageCheckerIssue issues = self.issues;
-    if (issues & AGImageCheckerIssueResized) {
-        self.layer.borderWidth = 2;
-        self.layer.borderColor = [UIColor yellowColor].CGColor;
-    }
-    
-    if (issues & AGImageCheckerIssueBlurry) {
-        self.layer.borderWidth = 3;
-        self.layer.borderColor = [UIColor orangeColor].CGColor;
-    }
-    
-    if (issues & AGImageCheckerIssueStretched) {
-        self.layer.borderWidth = 3;
-        self.layer.borderColor = [UIColor redColor].CGColor;
-    }
-
-    
-    
-    //        
-    //    UIGraphicsBeginImageContext(self.bounds.size);
-    //	CGContextRef context = UIGraphicsGetCurrentContext();
-    //	[[UIColor redColor] set];
-    //    CGContextSetLineWidth(context, 5);
-    //	CGContextStrokePath(context);
-    //    CGContextAddRect(context, self.bounds);
-    //    UIGraphicsEndImageContext();
-}
-
 
 #pragma mark Properties
 
