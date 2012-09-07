@@ -7,7 +7,13 @@
 //
 
 #import <SenTestingKit/SenTestingKit.h>
+#import "AGImageDetailViewController.h"
 
 @interface AGImageDetailTests : SenTestCase
+
+@property (strong) AGImageDetailViewController *imageDetailVC;
+@property (strong) UIImageView *imageView;
+@property (strong) UIImage *image;
+@property (strong) UIViewController *viewController;
 
 @end

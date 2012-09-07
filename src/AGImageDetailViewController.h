@@ -10,6 +10,12 @@
 
 @interface AGImageDetailViewController : UIViewController
 
-+ (void)presentModalForImageView:(UIImageView *)imageView inViewController:(UIViewController *)viewController;
+@property (readonly, strong) UIImageView *targetImageView;
+@property (readonly, strong) UILabel *imageViewFrameLabel;
+@property (readonly, strong) UILabel *imageSizeLabel;
+@property (readonly, strong) UILabel *issuesLabel;
+@property (readonly, strong) UILabel *imageNameLabel;
+
++ (AGImageDetailViewController *)presentModalForImageView:(UIImageView *)imageView inViewController:(UIViewController *)viewController;
 
 @end
