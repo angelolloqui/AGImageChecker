@@ -15,6 +15,9 @@
 @implementation UIImageView (AGImageChecker)
 @dynamic issues;
 
+
+#pragma mark Public API
+
 + (void)startCheckingImages {
     [self swizzle];
 }
@@ -84,7 +87,7 @@ static AGImageIssuesHandler sIssuesHandler = nil;
     return self;
 }
 
-#pragma mark Checking and drawing
+#pragma mark Checking issues
 
 - (void)checkImage {
     AGImageCheckerIssue issues = AGImageCheckerIssueNone;

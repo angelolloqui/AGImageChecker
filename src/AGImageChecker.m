@@ -12,6 +12,8 @@
 
 @implementation AGImageChecker
 
+#pragma mark Life cycle
+
 static AGImageChecker *sharedInstance = nil;
 + (AGImageChecker *)sharedInstance
 {
@@ -24,20 +26,34 @@ static AGImageChecker *sharedInstance = nil;
 	return sharedInstance;
 }
 
+static UITapGestureRecognizer *windowGesture = nil;
+- (id)init {
+    self = [super init];
+    if (self) {
+        windowGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnWindow)];
+        windowGesture.numberOfTapsRequired = 2;
+    }
+    return self;
+}
+
+#pragma mark Public API
+
 - (void)start {
     [UIImageView startCheckingImages];
     [UIImageView setImageIssuesHandler:^(UIImageView *imageView, AGImageCheckerIssue issues) {
         [[AGImageChecker sharedInstance] drawIssues:issues forImageView:imageView];
     }];
+    [[[UIApplication sharedApplication] keyWindow] addGestureRecognizer:windowGesture];
 }
 
 - (void)stop {
     [UIImageView stopCheckingImages];
     [UIImageView setImageIssuesHandler:nil];
+    [[[UIApplication sharedApplication] keyWindow] removeGestureRecognizer:windowGesture];
 }
 
 
-#pragma mark Drawing and notifiying
+#pragma mark Drawing
 
 - (void)drawIssues:(AGImageCheckerIssue)issues forImageView:(UIImageView *)imageView  {
     
@@ -68,6 +84,10 @@ static AGImageChecker *sharedInstance = nil;
 }
 
 
+#pragma mark Handling interaction
 
+- (void)tapOnWindow {
+    NSLog(@"gesture");
+}
 
 @end

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0B089DF015F8BF6C0097E747 /* square_big_image_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0B089DEF15F8BF6C0097E747 /* square_big_image_2x.png */; };
+		0B89678315F9F61E0007FE7C /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B89677C15F9F61E0007FE7C /* libOCMock.a */; };
+		0B89678715F9F9F50007FE7C /* UIApplication+Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B89678615F9F9F50007FE7C /* UIApplication+Tests.m */; };
 		0BBF611815F687BA005175C8 /* rect_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611515F687BA005175C8 /* rect_image.png */; };
 		0BBF611915F687BA005175C8 /* square_big_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611615F687BA005175C8 /* square_big_image.png */; };
 		0BBF611A15F687BA005175C8 /* square_small_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611715F687BA005175C8 /* square_small_image.png */; };
@@ -23,6 +25,15 @@
 
 /* Begin PBXFileReference section */
 		0B089DEF15F8BF6C0097E747 /* square_big_image_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square_big_image_2x.png; sourceTree = "<group>"; };
+		0B89677C15F9F61E0007FE7C /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
+		0B89677D15F9F61E0007FE7C /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
+		0B89677E15F9F61E0007FE7C /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
+		0B89677F15F9F61E0007FE7C /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
+		0B89678015F9F61E0007FE7C /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
+		0B89678115F9F61E0007FE7C /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
+		0B89678215F9F61E0007FE7C /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
+		0B89678515F9F9F50007FE7C /* UIApplication+Tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+Tests.h"; sourceTree = "<group>"; };
+		0B89678615F9F9F50007FE7C /* UIApplication+Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+Tests.m"; sourceTree = "<group>"; };
 		0BBF611515F687BA005175C8 /* rect_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rect_image.png; sourceTree = "<group>"; };
 		0BBF611615F687BA005175C8 /* square_big_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square_big_image.png; sourceTree = "<group>"; };
 		0BBF611715F687BA005175C8 /* square_small_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square_small_image.png; sourceTree = "<group>"; };
@@ -51,12 +62,46 @@
 				0BF8C14F15F661FE00142BDF /* SenTestingKit.framework in Frameworks */,
 				0BF8C15115F661FE00142BDF /* UIKit.framework in Frameworks */,
 				0BF8C15315F661FE00142BDF /* Foundation.framework in Frameworks */,
+				0B89678315F9F61E0007FE7C /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0B89673015F9F2AC0007FE7C /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				0B89677B15F9F61E0007FE7C /* OCMock */,
+			);
+			name = libs;
+			path = tests/libs;
+			sourceTree = SOURCE_ROOT;
+		};
+		0B89677B15F9F61E0007FE7C /* OCMock */ = {
+			isa = PBXGroup;
+			children = (
+				0B89677C15F9F61E0007FE7C /* libOCMock.a */,
+				0B89677D15F9F61E0007FE7C /* NSNotificationCenter+OCMAdditions.h */,
+				0B89677E15F9F61E0007FE7C /* OCMArg.h */,
+				0B89677F15F9F61E0007FE7C /* OCMConstraint.h */,
+				0B89678015F9F61E0007FE7C /* OCMock.h */,
+				0B89678115F9F61E0007FE7C /* OCMockObject.h */,
+				0B89678215F9F61E0007FE7C /* OCMockRecorder.h */,
+			);
+			path = OCMock;
+			sourceTree = "<group>";
+		};
+		0B89678415F9F9E00007FE7C /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				0B89678515F9F9F50007FE7C /* UIApplication+Tests.h */,
+				0B89678615F9F9F50007FE7C /* UIApplication+Tests.m */,
+			);
+			name = utils;
+			path = tests/utils;
+			sourceTree = SOURCE_ROOT;
+		};
 		0BBF611415F687BA005175C8 /* assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -100,6 +145,8 @@
 		0BF8C15415F661FE00142BDF /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				0B89678415F9F9E00007FE7C /* utils */,
+				0B89673015F9F2AC0007FE7C /* libs */,
 				0BF8C15515F661FE00142BDF /* Supporting Files */,
 				0BF8C16915F6624C00142BDF /* AGImageCheckerTests.h */,
 				0BF8C16A15F6624C00142BDF /* AGImageCheckerTests.m */,
@@ -219,6 +266,7 @@
 				0BF8C16815F6620A00142BDF /* UIImageView+AGImageChecker.m in Sources */,
 				0BF8C16B15F6624C00142BDF /* AGImageCheckerTests.m in Sources */,
 				0BF8C16E15F6636300142BDF /* AGImageViewTests.m in Sources */,
+				0B89678715F9F9F50007FE7C /* UIApplication+Tests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,8 +321,18 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "\"${SRCROOT}/tests/libs/\"";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/tests/libs/OCMock\"",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-force_load",
+					"\"${SRCROOT}/tests/libs/OCMock/libOCMock.a\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = octest;
@@ -299,8 +357,18 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "\"${SRCROOT}/tests/libs/\"";
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/tests/libs/OCMock\"",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-force_load",
+					"\"${SRCROOT}/tests/libs/OCMock/libOCMock.a\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

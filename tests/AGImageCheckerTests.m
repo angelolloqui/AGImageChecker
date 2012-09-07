@@ -11,6 +11,10 @@
 
 @implementation AGImageCheckerTests
 
+- (void)setUp {
+    [UIApplication resetApplication];
+}
+
 - (void)testImageCheckerIsInstanciated {
     STAssertNotNil([AGImageChecker sharedInstance], @"Can not instanciate the AGImageChecker");
 }
@@ -25,6 +29,18 @@
 
 - (void)testImageCheckerCanStopMonitoring {
     STAssertNoThrow([[AGImageChecker sharedInstance] stop], @"Can not instanciate the AGImageChecker");
+}
+
+- (void)testImageCheckerCorrectlySetGesturesInWindow {    
+    id keyWindow = (id)[[UIApplication sharedApplication] keyWindow];
+    
+    [[keyWindow expect] addGestureRecognizer:[OCMArg any]];
+    [[AGImageChecker sharedInstance] start];
+    [keyWindow verify];
+    
+    [[keyWindow expect] removeGestureRecognizer:[OCMArg any]];
+    [[AGImageChecker sharedInstance] stop];    
+    [keyWindow verify];    
 }
 
 
