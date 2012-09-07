@@ -10,8 +10,13 @@
 
 @interface AGImageChecker : NSObject
 
+@property(readonly) BOOL running;
+@property(readonly, strong) UILongPressGestureRecognizer *tapGesture;
+@property(nonatomic, strong) UIViewController *rootViewController;
+
 + (AGImageChecker *)sharedInstance;
 - (void)start;
 - (void)stop;
+- (void)openImageDetail:(UIImageView *)imageView;
 
 @end

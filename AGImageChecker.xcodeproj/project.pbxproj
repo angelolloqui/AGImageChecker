@@ -9,10 +9,13 @@
 /* Begin PBXBuildFile section */
 		0B089DF015F8BF6C0097E747 /* square_big_image_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0B089DEF15F8BF6C0097E747 /* square_big_image_2x.png */; };
 		0B89678315F9F61E0007FE7C /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B89677C15F9F61E0007FE7C /* libOCMock.a */; };
-		0B89678715F9F9F50007FE7C /* UIApplication+Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B89678615F9F9F50007FE7C /* UIApplication+Tests.m */; };
+		0BA2A88815FA32A200CCBAC8 /* UIApplication+Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2A88715FA32A200CCBAC8 /* UIApplication+Tests.m */; };
 		0BBF611815F687BA005175C8 /* rect_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611515F687BA005175C8 /* rect_image.png */; };
 		0BBF611915F687BA005175C8 /* square_big_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611615F687BA005175C8 /* square_big_image.png */; };
 		0BBF611A15F687BA005175C8 /* square_small_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611715F687BA005175C8 /* square_small_image.png */; };
+		0BD7D0E115FA384C00BDCA60 /* AGImageDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BD7D0E015FA384C00BDCA60 /* AGImageDetailViewController.m */; };
+		0BD7D0E915FA440500BDCA60 /* AGImageDetailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BD7D0E815FA440500BDCA60 /* AGImageDetailTests.m */; };
+		0BD7D0EB15FA444D00BDCA60 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BD7D0EA15FA444D00BDCA60 /* CoreGraphics.framework */; };
 		0BF8C14F15F661FE00142BDF /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BF8C14E15F661FE00142BDF /* SenTestingKit.framework */; };
 		0BF8C15115F661FE00142BDF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BF8C15015F661FE00142BDF /* UIKit.framework */; };
 		0BF8C15315F661FE00142BDF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BF8C15215F661FE00142BDF /* Foundation.framework */; };
@@ -32,11 +35,16 @@
 		0B89678015F9F61E0007FE7C /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
 		0B89678115F9F61E0007FE7C /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
 		0B89678215F9F61E0007FE7C /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
-		0B89678515F9F9F50007FE7C /* UIApplication+Tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+Tests.h"; sourceTree = "<group>"; };
-		0B89678615F9F9F50007FE7C /* UIApplication+Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+Tests.m"; sourceTree = "<group>"; };
+		0BA2A88615FA32A200CCBAC8 /* UIApplication+Tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+Tests.h"; sourceTree = "<group>"; };
+		0BA2A88715FA32A200CCBAC8 /* UIApplication+Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+Tests.m"; sourceTree = "<group>"; };
 		0BBF611515F687BA005175C8 /* rect_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rect_image.png; sourceTree = "<group>"; };
 		0BBF611615F687BA005175C8 /* square_big_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square_big_image.png; sourceTree = "<group>"; };
 		0BBF611715F687BA005175C8 /* square_small_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square_small_image.png; sourceTree = "<group>"; };
+		0BD7D0DF15FA384C00BDCA60 /* AGImageDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGImageDetailViewController.h; sourceTree = "<group>"; };
+		0BD7D0E015FA384C00BDCA60 /* AGImageDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGImageDetailViewController.m; sourceTree = "<group>"; };
+		0BD7D0E715FA440500BDCA60 /* AGImageDetailTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AGImageDetailTests.h; path = tests/AGImageDetailTests.h; sourceTree = SOURCE_ROOT; };
+		0BD7D0E815FA440500BDCA60 /* AGImageDetailTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGImageDetailTests.m; path = tests/AGImageDetailTests.m; sourceTree = SOURCE_ROOT; };
+		0BD7D0EA15FA444D00BDCA60 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		0BF8C14B15F661FE00142BDF /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0BF8C14E15F661FE00142BDF /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		0BF8C15015F661FE00142BDF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -59,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0BD7D0EB15FA444D00BDCA60 /* CoreGraphics.framework in Frameworks */,
 				0BF8C14F15F661FE00142BDF /* SenTestingKit.framework in Frameworks */,
 				0BF8C15115F661FE00142BDF /* UIKit.framework in Frameworks */,
 				0BF8C15315F661FE00142BDF /* Foundation.framework in Frameworks */,
@@ -95,8 +104,8 @@
 		0B89678415F9F9E00007FE7C /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				0B89678515F9F9F50007FE7C /* UIApplication+Tests.h */,
-				0B89678615F9F9F50007FE7C /* UIApplication+Tests.m */,
+				0BA2A88615FA32A200CCBAC8 /* UIApplication+Tests.h */,
+				0BA2A88715FA32A200CCBAC8 /* UIApplication+Tests.m */,
 			);
 			name = utils;
 			path = tests/utils;
@@ -117,6 +126,7 @@
 		0BF8C13015F6613F00142BDF = {
 			isa = PBXGroup;
 			children = (
+				0BD7D0EA15FA444D00BDCA60 /* CoreGraphics.framework */,
 				0BF8C16215F6620A00142BDF /* src */,
 				0BF8C15415F661FE00142BDF /* Tests */,
 				0BF8C14D15F661FE00142BDF /* Frameworks */,
@@ -152,6 +162,8 @@
 				0BF8C16A15F6624C00142BDF /* AGImageCheckerTests.m */,
 				0BF8C16C15F6636300142BDF /* AGImageViewTests.h */,
 				0BF8C16D15F6636300142BDF /* AGImageViewTests.m */,
+				0BD7D0E715FA440500BDCA60 /* AGImageDetailTests.h */,
+				0BD7D0E815FA440500BDCA60 /* AGImageDetailTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -174,6 +186,8 @@
 				0BF8C16415F6620A00142BDF /* AGImageChecker.m */,
 				0BF8C16515F6620A00142BDF /* UIImageView+AGImageChecker.h */,
 				0BF8C16615F6620A00142BDF /* UIImageView+AGImageChecker.m */,
+				0BD7D0DF15FA384C00BDCA60 /* AGImageDetailViewController.h */,
+				0BD7D0E015FA384C00BDCA60 /* AGImageDetailViewController.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -266,7 +280,9 @@
 				0BF8C16815F6620A00142BDF /* UIImageView+AGImageChecker.m in Sources */,
 				0BF8C16B15F6624C00142BDF /* AGImageCheckerTests.m in Sources */,
 				0BF8C16E15F6636300142BDF /* AGImageViewTests.m in Sources */,
-				0B89678715F9F9F50007FE7C /* UIApplication+Tests.m in Sources */,
+				0BA2A88815FA32A200CCBAC8 /* UIApplication+Tests.m in Sources */,
+				0BD7D0E115FA384C00BDCA60 /* AGImageDetailViewController.m in Sources */,
+				0BD7D0E915FA440500BDCA60 /* AGImageDetailTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

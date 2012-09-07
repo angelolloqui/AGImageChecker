@@ -8,9 +8,19 @@
 
 #import "AGImageChecker.h"
 #import "UIImageView+AGImageChecker.h"
+#import "AGImageDetailViewController.h"
 #import <QuartzCore/QuartzCore.h>
 
+@interface AGImageChecker()
+@property(readwrite) BOOL running;
+@property(readwrite, strong) UITapGestureRecognizer *tapGesture;
+@end
+
 @implementation AGImageChecker
+
+@synthesize running;
+@synthesize tapGesture;
+@synthesize rootViewController;
 
 #pragma mark Life cycle
 
@@ -26,12 +36,11 @@ static AGImageChecker *sharedInstance = nil;
 	return sharedInstance;
 }
 
-static UITapGestureRecognizer *windowGesture = nil;
 - (id)init {
     self = [super init];
     if (self) {
-        windowGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnWindow)];
-        windowGesture.numberOfTapsRequired = 2;
+        self.running = NO;
+        self.tapGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnWindow)];
     }
     return self;
 }
@@ -39,19 +48,31 @@ static UITapGestureRecognizer *windowGesture = nil;
 #pragma mark Public API
 
 - (void)start {
-    [UIImageView startCheckingImages];
-    [UIImageView setImageIssuesHandler:^(UIImageView *imageView, AGImageCheckerIssue issues) {
-        [[AGImageChecker sharedInstance] drawIssues:issues forImageView:imageView];
-    }];
-    [[[UIApplication sharedApplication] keyWindow] addGestureRecognizer:windowGesture];
+    if (!self.running) {
+        self.running = YES;
+        [UIImageView startCheckingImages];
+        [UIImageView setImageIssuesHandler:^(UIImageView *imageView, AGImageCheckerIssue issues) {
+            [[AGImageChecker sharedInstance] drawIssues:issues forImageView:imageView];
+        }];
+        [self.rootViewController.view addGestureRecognizer:tapGesture];
+    }
 }
 
 - (void)stop {
-    [UIImageView stopCheckingImages];
-    [UIImageView setImageIssuesHandler:nil];
-    [[[UIApplication sharedApplication] keyWindow] removeGestureRecognizer:windowGesture];
+    if (self.running) {
+        self.running = NO;
+        [UIImageView stopCheckingImages];
+        [UIImageView setImageIssuesHandler:nil];
+        [self.rootViewController.view removeGestureRecognizer:tapGesture];
+    }
 }
 
+- (UIViewController *)rootViewController {
+    if (!rootViewController) {
+        return [[[UIApplication sharedApplication] keyWindow] rootViewController];
+    }
+    return rootViewController;
+}
 
 #pragma mark Drawing
 
@@ -87,7 +108,36 @@ static UITapGestureRecognizer *windowGesture = nil;
 #pragma mark Handling interaction
 
 - (void)tapOnWindow {
-    NSLog(@"gesture");
+    UIView *rootView = self.rootViewController.view;
+    CGPoint location = [self.tapGesture locationInView:rootView];
+        
+    UIImageView *imageView = [self imageViewAtPosition:location inView:rootView];    
+    if (imageView) {
+        [self openImageDetail:imageView];
+    }
+}
+
+- (UIImageView *)imageViewAtPosition:(CGPoint)point inView:(UIView *)view {
+    NSEnumerator *subviews = [view.subviews reverseObjectEnumerator];
+    for (UIView *subview in subviews) {
+        if ((!subview.hidden) &&
+            (subview.alpha > 0) &&
+            (CGRectContainsPoint(subview.frame, point))) {
+            
+			CGPoint newPoint = [view convertPoint:point toView:subview];			
+            UIImageView *imgView = [self imageViewAtPosition:newPoint inView:subview];
+            if (imgView) return imgView;
+		}
+    }
+    
+    if ([view isKindOfClass:[UIImageView class]]) {
+        return (UIImageView *) view;
+    }
+    return nil;
+}
+
+- (void)openImageDetail:(UIImageView *)imageView {
+    [AGImageDetailViewController presentModalForImageView:imageView inViewController:self.rootViewController];
 }
 
 @end
