@@ -1,9 +1,8 @@
 //
 //  AGImageChecker.h
-//  Ziggo TV
 //
 //  Created by Angel on 9/4/12.
-//  Copyright (c) 2012 Xaton. All rights reserved.
+//  Copyright (c) 2012 angelolloqui.com. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

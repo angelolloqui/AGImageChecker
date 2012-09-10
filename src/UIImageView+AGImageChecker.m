@@ -1,9 +1,8 @@
 //
 //  UIImageView+AGImageChecker.m
-//  Ziggo TV
 //
 //  Created by Angel on 9/4/12.
-//  Copyright (c) 2012 Xaton. All rights reserved.
+//  Copyright (c) 2012 angelolloqui.com. All rights reserved.
 //
 
 #import "UIImageView+AGImageChecker.h"
@@ -34,6 +33,7 @@ static AGImageIssuesHandler sIssuesHandler = nil;
 #pragma mark Swizzling methods
 
 + (void)swizzle {
+#ifdef DEBUG
     //Swizzle the original setImage method to add our own calls
     Method setImageOriginal = class_getInstanceMethod(self, @selector(setImage:));
     Method setImageCustom = class_getInstanceMethod(self, @selector(setImageCustom:));
@@ -53,6 +53,7 @@ static AGImageIssuesHandler sIssuesHandler = nil;
     Method setInitWithCoderOriginal = class_getInstanceMethod(self, @selector(initWithCoder:));
     Method setInitWithCoderCustom = class_getInstanceMethod(self, @selector(initWithCoderCustom:));
     method_exchangeImplementations(setInitWithCoderOriginal, setInitWithCoderCustom);    
+#endif
 }
 
 - (void)setImageCustom:(UIImage *)image {
