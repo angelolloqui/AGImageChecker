@@ -9,7 +9,8 @@
 #import "UIImageView+AGImageChecker.h"
 #import <objc/runtime.h>
 
-#define CGSizeIsBiggerThan(size1, size2) ((size1.width > size2.width) && (size1.height > size2.height))
+#define CGSizeIsBiggerThan(size1, size2) ((size1.width > size2.width) || (size1.height > size2.height))
+#define CGSizeIsStrictlyBiggerThan(size1, size2) ((size1.width > size2.width) && (size1.height > size2.height))
 #define CGSizeIsProportionalTo(size1, size2) ((size1.width / size2.width) == (size1.height / size2.height))
 
 @implementation UIImageView (AGImageChecker)
@@ -105,7 +106,7 @@ static AGImageIssuesHandler sIssuesHandler = nil;
         viewSize = CGSizeMake(viewSize.width * viewScale, viewSize.height * viewScale);
 
         if (self.contentMode == UIViewContentModeScaleAspectFill) {        
-            if ((imgSize.width != viewSize.width) && (imgSize.height != viewSize.height)) {
+            if ((imgSize.width != viewSize.width) || (imgSize.height != viewSize.height)) {
                 issues |= AGImageCheckerIssueResized;
             }
             if (CGSizeIsBiggerThan(viewSize, imgSize)) {
@@ -116,11 +117,11 @@ static AGImageIssuesHandler sIssuesHandler = nil;
             }
         }
         else if (self.contentMode == UIViewContentModeScaleAspectFit) {
-            if (CGSizeIsBiggerThan(viewSize, imgSize)) {
+            if (CGSizeIsStrictlyBiggerThan(viewSize, imgSize)) {
                 issues |= AGImageCheckerIssueResized;
                 issues |= AGImageCheckerIssueBlurry;
             }        
-            else if (CGSizeIsBiggerThan(imgSize, viewSize)) {
+            else if (CGSizeIsStrictlyBiggerThan(imgSize, viewSize)) {
                 issues |= AGImageCheckerIssueResized;
             }        
         }
