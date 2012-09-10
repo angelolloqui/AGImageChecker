@@ -17,13 +17,14 @@
 		0BD7D0E915FA440500BDCA60 /* AGImageDetailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BD7D0E815FA440500BDCA60 /* AGImageDetailTests.m */; };
 		0BD7D0EB15FA444D00BDCA60 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BD7D0EA15FA444D00BDCA60 /* CoreGraphics.framework */; };
 		0BF8C14F15F661FE00142BDF /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BF8C14E15F661FE00142BDF /* SenTestingKit.framework */; };
-		0BF8C15115F661FE00142BDF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BF8C15015F661FE00142BDF /* UIKit.framework */; };
-		0BF8C15315F661FE00142BDF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BF8C15215F661FE00142BDF /* Foundation.framework */; };
 		0BF8C15915F661FE00142BDF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BF8C15715F661FE00142BDF /* InfoPlist.strings */; };
 		0BF8C16715F6620A00142BDF /* AGImageChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF8C16415F6620A00142BDF /* AGImageChecker.m */; };
 		0BF8C16815F6620A00142BDF /* UIImageView+AGImageChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF8C16615F6620A00142BDF /* UIImageView+AGImageChecker.m */; };
 		0BF8C16B15F6624C00142BDF /* AGImageCheckerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF8C16A15F6624C00142BDF /* AGImageCheckerTests.m */; };
 		0BF8C16E15F6636300142BDF /* AGImageViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF8C16D15F6636300142BDF /* AGImageViewTests.m */; };
+		0BFF2E4E15FDD8C1002304B8 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFF2E4D15FDD8C1002304B8 /* CoreFoundation.framework */; };
+		0BFF2E5015FDD8E7002304B8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFF2E4F15FDD8E7002304B8 /* UIKit.framework */; };
+		0BFF2E5215FDD8ED002304B8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFF2E5115FDD8ED002304B8 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,8 +48,6 @@
 		0BD7D0EA15FA444D00BDCA60 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		0BF8C14B15F661FE00142BDF /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0BF8C14E15F661FE00142BDF /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		0BF8C15015F661FE00142BDF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		0BF8C15215F661FE00142BDF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		0BF8C15615F661FE00142BDF /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		0BF8C15815F661FE00142BDF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0BF8C15D15F661FE00142BDF /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
@@ -60,6 +59,9 @@
 		0BF8C16A15F6624C00142BDF /* AGImageCheckerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGImageCheckerTests.m; path = tests/AGImageCheckerTests.m; sourceTree = SOURCE_ROOT; };
 		0BF8C16C15F6636300142BDF /* AGImageViewTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AGImageViewTests.h; path = tests/AGImageViewTests.h; sourceTree = SOURCE_ROOT; };
 		0BF8C16D15F6636300142BDF /* AGImageViewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGImageViewTests.m; path = tests/AGImageViewTests.m; sourceTree = SOURCE_ROOT; };
+		0BFF2E4D15FDD8C1002304B8 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		0BFF2E4F15FDD8E7002304B8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		0BFF2E5115FDD8ED002304B8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,10 +69,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0BFF2E5215FDD8ED002304B8 /* Foundation.framework in Frameworks */,
+				0BFF2E5015FDD8E7002304B8 /* UIKit.framework in Frameworks */,
+				0BFF2E4E15FDD8C1002304B8 /* CoreFoundation.framework in Frameworks */,
 				0BD7D0EB15FA444D00BDCA60 /* CoreGraphics.framework in Frameworks */,
 				0BF8C14F15F661FE00142BDF /* SenTestingKit.framework in Frameworks */,
-				0BF8C15115F661FE00142BDF /* UIKit.framework in Frameworks */,
-				0BF8C15315F661FE00142BDF /* Foundation.framework in Frameworks */,
 				0B89678315F9F61E0007FE7C /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -126,7 +129,6 @@
 		0BF8C13015F6613F00142BDF = {
 			isa = PBXGroup;
 			children = (
-				0BD7D0EA15FA444D00BDCA60 /* CoreGraphics.framework */,
 				0BF8C16215F6620A00142BDF /* src */,
 				0BF8C15415F661FE00142BDF /* Tests */,
 				0BF8C14D15F661FE00142BDF /* Frameworks */,
@@ -145,9 +147,11 @@
 		0BF8C14D15F661FE00142BDF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0BFF2E5115FDD8ED002304B8 /* Foundation.framework */,
+				0BFF2E4F15FDD8E7002304B8 /* UIKit.framework */,
+				0BFF2E4D15FDD8C1002304B8 /* CoreFoundation.framework */,
 				0BF8C14E15F661FE00142BDF /* SenTestingKit.framework */,
-				0BF8C15015F661FE00142BDF /* UIKit.framework */,
-				0BF8C15215F661FE00142BDF /* Foundation.framework */,
+				0BD7D0EA15FA444D00BDCA60 /* CoreGraphics.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -345,9 +349,9 @@
 					"\"$(SRCROOT)/tests/libs/OCMock\"",
 				);
 				OTHER_LDFLAGS = (
-					"-ObjC",
 					"-force_load",
 					"\"${SRCROOT}/tests/libs/OCMock/libOCMock.a\"",
+					"-ObjC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -381,9 +385,9 @@
 					"\"$(SRCROOT)/tests/libs/OCMock\"",
 				);
 				OTHER_LDFLAGS = (
-					"-ObjC",
 					"-force_load",
 					"\"${SRCROOT}/tests/libs/OCMock/libOCMock.a\"",
+					"-ObjC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

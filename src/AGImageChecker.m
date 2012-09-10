@@ -13,7 +13,7 @@
 
 @interface AGImageChecker()
 @property(readwrite) BOOL running;
-@property(readwrite, strong) UITapGestureRecognizer *tapGesture;
+@property(readwrite, strong) UILongPressGestureRecognizer *tapGesture;
 @end
 
 @implementation AGImageChecker
@@ -82,14 +82,14 @@ static AGImageChecker *sharedInstance = nil;
     imageView.layer.borderColor = nil;
     
     if (!imageView.hidden && imageView.alpha > 0) {
-        //    if (issues & AGImageCheckerIssueResized) {
-        //        imageView.layer.borderWidth = 2;
-        //        imageView.layer.borderColor = [UIColor yellowColor].CGColor;
-        //    }
+        if (issues != AGImageCheckerIssueNone) {
+            imageView.layer.borderWidth = 1;
+            imageView.layer.borderColor = [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.5].CGColor;
+        }
         
         if (issues & AGImageCheckerIssueBlurry) {
-            imageView.layer.borderWidth = 1;
-            imageView.layer.borderColor = [UIColor yellowColor].CGColor;
+            imageView.layer.borderWidth = 2;
+            imageView.layer.borderColor = [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.8].CGColor;
         }
         
         if (issues & AGImageCheckerIssueStretched) {

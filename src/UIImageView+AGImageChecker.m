@@ -152,9 +152,6 @@ static AGImageIssuesHandler sIssuesHandler = nil;
         }
     }
     self.issues = issues;
-    if (sIssuesHandler) {
-        sIssuesHandler(self, issues);
-    }
 }
 
 #pragma mark Properties
@@ -166,6 +163,9 @@ static void * const kMyAssociatedIssuesKey = (void*)&kMyAssociatedIssuesKey;
 
 - (void)setIssues:(AGImageCheckerIssue)issues {
     objc_setAssociatedObject(self, kMyAssociatedIssuesKey, [NSNumber numberWithInt:issues], OBJC_ASSOCIATION_RETAIN);
+    if (sIssuesHandler) {
+        sIssuesHandler(self, issues);
+    }
 }
 
 @end

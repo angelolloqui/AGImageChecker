@@ -10,11 +10,16 @@
 
 @interface AGImageDetailViewController : UIViewController
 
+@property (readonly, strong) UIScrollView *contentScrollView;
 @property (readonly, strong) UIImageView *targetImageView;
-@property (readonly, strong) UILabel *imageViewFrameLabel;
+@property (readonly, strong) UILabel *imageViewSizeLabel;
 @property (readonly, strong) UILabel *imageSizeLabel;
+@property (readonly, strong) UILabel *contentModeLabel;
 @property (readonly, strong) UILabel *issuesLabel;
 @property (readonly, strong) UILabel *imageNameLabel;
+@property (readonly, strong) UILabel *controllerNameLabel;
+@property (readonly, strong) UIImageView *orginalImageView;
+@property (readonly, strong) UIImageView *renderedImageView;
 
 + (AGImageDetailViewController *)presentModalForImageView:(UIImageView *)imageView inViewController:(UIViewController *)viewController;
 
