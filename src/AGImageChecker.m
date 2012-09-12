@@ -54,6 +54,10 @@ static AGImageChecker *sharedInstance = nil;
             [[AGImageChecker sharedInstance] drawIssues:issues forImageView:imageView];
         }];
         [self.rootViewController.view addGestureRecognizer:tapGesture];
+        NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
+        for (UIImageView *imageView in loadedImageViews) {
+            [imageView checkImage];
+        }
     }
 }
 
@@ -63,6 +67,10 @@ static AGImageChecker *sharedInstance = nil;
         [UIImageView stopCheckingImages];
         [UIImageView setImageIssuesHandler:nil];
         [self.rootViewController.view removeGestureRecognizer:tapGesture];
+        NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
+        for (UIImageView *imageView in loadedImageViews) {
+            imageView.issues = AGImageCheckerIssueNone;
+        }
     }
 }
 
@@ -116,6 +124,13 @@ static AGImageChecker *sharedInstance = nil;
     }
 }
 
+- (void)openImageDetail:(UIImageView *)imageView {
+    [AGImageDetailViewController presentModalForImageView:imageView inViewController:self.rootViewController];
+}
+
+
+#pragma mark View traversing
+
 - (UIImageView *)imageViewAtPosition:(CGPoint)point inView:(UIView *)view {
     NSEnumerator *subviews = [view.subviews reverseObjectEnumerator];
     for (UIView *subview in subviews) {
@@ -135,8 +150,15 @@ static AGImageChecker *sharedInstance = nil;
     return nil;
 }
 
-- (void)openImageDetail:(UIImageView *)imageView {
-    [AGImageDetailViewController presentModalForImageView:imageView inViewController:self.rootViewController];
+- (NSArray *)imageViewsInto:(UIView *)view {
+    NSMutableArray *images = [NSMutableArray arrayWithCapacity:10];
+    for (UIView *subview in view.subviews) {
+        [images addObjectsFromArray:[self imageViewsInto:subview]];
+    }
+    if ([view isKindOfClass:[UIImageView class]]){
+        [images addObject:view];
+    }
+    return images;
 }
 
 @end

@@ -8,6 +8,7 @@
 
 #import "AGImageCheckerTests.h"
 #import "AGImageChecker.h"
+#import "UIImageView+AGImageChecker.h"
 
 @interface AGImageChecker(private)
 - (void)tapOnWindow;
@@ -23,8 +24,8 @@
     rootViewController = [[UIViewController alloc] init];    
     [rootViewController setView:[[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)]];
     
-    mockRootView = [OCMockObject mockForClass:[UIView class]];
-    mockRootViewController = [OCMockObject mockForClass:[UIViewController class]];
+    mockRootView = [OCMockObject niceMockForClass:[UIView class]];
+    mockRootViewController = [OCMockObject niceMockForClass:[UIViewController class]];
     [[[mockRootViewController stub] andReturn:mockRootView] view];
     
     [[AGImageChecker sharedInstance] setRootViewController:rootViewController];
@@ -32,6 +33,7 @@
 
 - (void) tearDown {
     [UIApplication resetApplication];
+    [[AGImageChecker sharedInstance] stop];
 }
 
 - (void)testImageCheckerIsInstanciated {
@@ -107,7 +109,6 @@
     [mockImageChecker verify];
 }
 
-
 - (void)testImageCheckerOpensDetailController {    
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
     id mockController = [OCMockObject partialMockForObject:rootViewController];
@@ -117,5 +118,14 @@
     [[AGImageChecker sharedInstance] openImageDetail:imageView];    
     [mockController verify];
 }
+
+- (void)testImageCheckerChecksAlreadyLoadedImagesWhenStarted {     
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    [self.rootViewController.view addSubview:imageView];
+    STAssertTrue(imageView.issues == AGImageCheckerIssueNone, @"Image view should not have issues before starting");
+    [[AGImageChecker sharedInstance] start];
+    STAssertTrue(imageView.issues != AGImageCheckerIssueNone, @"Image view loaded should have issue missing at least");
+}
+
 
 @end
