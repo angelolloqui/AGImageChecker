@@ -13,7 +13,8 @@ typedef enum {
     AGImageCheckerIssueBlurry = 1 << 2,
     AGImageCheckerIssueStretched = 1 << 3,
     AGImageCheckerIssuePartiallyHidden = 1 << 4,
-    AGImageCheckerIssueMissing = 1 << 5
+    AGImageCheckerIssueMissaligned = 1 << 5,
+    AGImageCheckerIssueMissing = 1 << 6
 }AGImageCheckerIssue;
 
 typedef void(^AGImageIssuesHandler)(UIImageView *imageView, AGImageCheckerIssue issues);
@@ -25,5 +26,7 @@ typedef void(^AGImageIssuesHandler)(UIImageView *imageView, AGImageCheckerIssue 
 + (void)startCheckingImages;
 + (void)stopCheckingImages;
 + (void)setImageIssuesHandler:(AGImageIssuesHandler)handler;
+
+- (void)checkImage;
 
 @end

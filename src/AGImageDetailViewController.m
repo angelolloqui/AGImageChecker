@@ -16,6 +16,7 @@ static NSInteger padding = 10;
 
 @property (readwrite, strong) UIScrollView *contentScrollView;
 @property (readwrite, strong) UIImageView *targetImageView;
+@property (readwrite, strong) UILabel *imageViewPositionLabel;
 @property (readwrite, strong) UILabel *imageViewSizeLabel;
 @property (readwrite, strong) UILabel *imageSizeLabel;
 @property (readwrite, strong) UILabel *imageRetinaLabel;
@@ -32,6 +33,7 @@ static NSInteger padding = 10;
 @implementation AGImageDetailViewController
 @synthesize contentScrollView;
 @synthesize targetImageView;
+@synthesize imageViewPositionLabel;
 @synthesize imageViewSizeLabel;
 @synthesize imageSizeLabel;
 @synthesize imageRetinaLabel;
@@ -70,44 +72,28 @@ static NSInteger padding = 10;
     [self.view addSubview:self.contentScrollView];
     
     self.posY = padding;
+    
+    self.imageViewSizeLabel = [self addLabelWithTitle:@"View position:" andText:NSStringFromCGPoint(targetImageView.frame.origin)];
     self.imageViewSizeLabel = [self addLabelWithTitle:@"View size:" andText:NSStringFromCGSize(targetImageView.frame.size)];
     self.imageSizeLabel = [self addLabelWithTitle:@"Image size:" andText:NSStringFromCGSize(targetImageView.image.size)];
     self.imageRetinaLabel = [self addLabelWithTitle:@"Using retina:" andText:(targetImageView.image.scale > 1)? @"YES" : @"NO"];
     self.contentModeLabel = [self addLabelWithTitle:@"Content Mode:" andText:[self contentModeToString:targetImageView.contentMode]];
     self.issuesLabel = [self addLabelWithTitle:@"Issues:" andText:[[self descriptionsForIssues:targetImageView.issues] componentsJoinedByString:@",\n"]];
     self.imageNameLabel = [self addLabelWithTitle:@"Image name:" andText:targetImageView.accessibilityLabel];
-    self.controllerNameLabel = [self addLabelWithTitle:@"Controller:" andText:NSStringFromClass([[self controllerForView:targetImageView] class])];
-    
-    [self addLabelWithTitle:@"Original" andText:@""];
-    self.orginalImageView = [[UIImageView alloc] initWithFrame:CGRectMake(padding, posY, targetImageView.image.size.width, targetImageView.image.size.height)];
-    self.orginalImageView.image = targetImageView.image;
-    self.orginalImageView.issues = AGImageCheckerIssueNone;    
-    UIView *backView = [[UIView alloc] initWithFrame:self.orginalImageView.frame];
-    backView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"AGTileBackground"]];
-    [self.contentScrollView addSubview:backView];
-    [self.contentScrollView addSubview:orginalImageView];
-    posY += orginalImageView.frame.size.height + (int)(padding / 2);
-
-    [self addLabelWithTitle:@"Rendered" andText:@""];
-    self.renderedImageView = [[UIImageView alloc] initWithFrame:CGRectMake(padding, posY, targetImageView.frame.size.width, targetImageView.frame.size.height)];
-    self.renderedImageView.image = targetImageView.image;
+    self.controllerNameLabel = [self addLabelWithTitle:@"Controller:" andText:NSStringFromClass([[self controllerForView:targetImageView] class])];    
+    self.orginalImageView = [self addImageViewWithTitle:@"Original" andImage:targetImageView.image andSize:targetImageView.image.size];
+    self.renderedImageView = [self addImageViewWithTitle:@"Rendered" andImage:targetImageView.image andSize:targetImageView.frame.size];
     self.renderedImageView.contentMode = targetImageView.contentMode;
-    self.renderedImageView.clipsToBounds = YES;
     self.renderedImageView.issues = AGImageCheckerIssueNone;    
-    backView = [[UIView alloc] initWithFrame:self.renderedImageView.frame];
-    backView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"AGTileBackground"]];
-    [self.contentScrollView addSubview:backView];
-    [self.contentScrollView addSubview:renderedImageView];
-    posY += renderedImageView.frame.size.height + (int)(padding / 2);
 
     self.contentScrollView.contentSize = CGSizeMake(MAX(renderedImageView.frame.size.width, orginalImageView.frame.size.width) + padding * 2, posY + padding);
 }
 
-- (void) dismissView {
+- (void)dismissView {
     [self dismissModalViewControllerAnimated:YES];
 }
 
-- (UILabel *) addLabelWithTitle:(NSString *)title andText:(NSString *)text {  
+- (UILabel *)addLabelWithTitle:(NSString *)title andText:(NSString *)text {  
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, posY, titleWidth, 22)];
     titleLabel.textColor = [UIColor grayColor];
     titleLabel.backgroundColor = [UIColor clearColor];
@@ -128,6 +114,21 @@ static NSInteger padding = 10;
     return label;
 }
 
+
+- (UIImageView *)addImageViewWithTitle:(NSString *)title andImage:(UIImage *)image andSize:(CGSize)size{  
+    [self addLabelWithTitle:title andText:@""];
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(padding, posY, size.width, size.height)];
+    imageView.image = image;
+    imageView.clipsToBounds = YES;
+    UIView *backView = [[UIView alloc] initWithFrame:imageView.frame];
+    backView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"AGTileBackground"]];
+    [self.contentScrollView addSubview:backView];
+    [self.contentScrollView addSubview:imageView];
+    posY += size.height + (int)(padding / 2);
+    return imageView;
+}
+
+
 - (NSArray *)descriptionsForIssues:(AGImageCheckerIssue)issues {
     NSMutableArray *issuesDescriptions = [[NSMutableArray alloc] initWithCapacity:6];
     
@@ -146,6 +147,9 @@ static NSInteger padding = 10;
         }
         if (issues & AGImageCheckerIssuePartiallyHidden) {
             [issuesDescriptions addObject:@"Image may be partially hidden"];
+        }
+        if (issues & AGImageCheckerIssueMissaligned) {
+            [issuesDescriptions addObject:@"Image is missaligned"];
         }
         if (issues & AGImageCheckerIssueMissing) {
             [issuesDescriptions addObject:@"Image not found"];

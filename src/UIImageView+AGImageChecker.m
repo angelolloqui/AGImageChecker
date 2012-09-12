@@ -11,20 +11,27 @@
 #define CGSizeIsBiggerThan(size1, size2) ((size1.width > size2.width) || (size1.height > size2.height))
 #define CGSizeIsStrictlyBiggerThan(size1, size2) ((size1.width > size2.width) && (size1.height > size2.height))
 #define CGSizeIsProportionalTo(size1, size2) ((size1.width / size2.width) == (size1.height / size2.height))
-
+#define floatIsDecimal(num) (num - ((int) num) != 0.0f)
 @implementation UIImageView (AGImageChecker)
 @dynamic issues;
 
 
 #pragma mark Public API
-
+static BOOL methodsAlreadySwizzled = NO;
 + (void)startCheckingImages {
-    [self swizzle];
+    if (!methodsAlreadySwizzled) {
+        methodsAlreadySwizzled = YES;
+        [self swizzle];
+    }
 }
 
 + (void)stopCheckingImages {
-    [self swizzle];
+    if (methodsAlreadySwizzled) {
+        methodsAlreadySwizzled = NO;
+        [self swizzle];
+    }
 }
+
 static AGImageIssuesHandler sIssuesHandler = nil;
 + (void)setImageIssuesHandler:(AGImageIssuesHandler)handler {
     sIssuesHandler = [handler copy];
@@ -44,12 +51,12 @@ static AGImageIssuesHandler sIssuesHandler = nil;
     Method setFrameCustom = class_getInstanceMethod(self, @selector(setFrameCustom:));
     method_exchangeImplementations(setFrameOriginal, setFrameCustom);    
     
-    //Swizzle the original setFrame method to add our own calls
+    //Swizzle the original setContentMode method to add our own calls
     Method setContentModeOriginal = class_getInstanceMethod(self, @selector(setContentMode:));
     Method setContentModeCustom = class_getInstanceMethod(self, @selector(setContentModeCustom:));
     method_exchangeImplementations(setContentModeOriginal, setContentModeCustom);    
     
-    //Swizzle the original setFrame method to add our own calls
+    //Swizzle the original initWithCoder method to add our own calls
     Method setInitWithCoderOriginal = class_getInstanceMethod(self, @selector(initWithCoder:));
     Method setInitWithCoderCustom = class_getInstanceMethod(self, @selector(initWithCoderCustom:));
     method_exchangeImplementations(setInitWithCoderOriginal, setInitWithCoderCustom);    
@@ -147,12 +154,36 @@ static AGImageIssuesHandler sIssuesHandler = nil;
             if (self.contentMode == UIViewContentModeCenter) {
                 CGFloat deltaX = (imgSize.width - viewSize.width) / 2.0;
                 CGFloat deltaY = (imgSize.height - viewSize.height) / 2.0;
-                if ((deltaX != round(deltaX)) || (deltaY != round(deltaY))) {
+                if ((floatIsDecimal(deltaX)) || (floatIsDecimal(deltaY))) {
                     issues |= AGImageCheckerIssueBlurry;
+                    issues |= AGImageCheckerIssueMissaligned;
                 }
             }
         }
     }
+    
+    //Check if the view is correctly aligned
+    CGPoint viewPosition = self.frame.origin;
+    if ((floatIsDecimal(viewPosition.x)) || (floatIsDecimal(viewPosition.y))) {
+        issues |= AGImageCheckerIssueBlurry;
+        issues |= AGImageCheckerIssueMissaligned;
+    }
+    
+    //If the image seems not to be missaligned, check the parent
+    if (!(issues & AGImageCheckerIssueMissaligned)) {
+        UIView *topView = self;
+        while (topView.superview) {
+            topView = topView.superview;
+        }
+        if (topView != self) {
+            CGPoint topPoint = [topView convertPoint:self.frame.origin fromView:self.superview];
+            if ((floatIsDecimal(topPoint.x)) || (floatIsDecimal(topPoint.y))) {
+                issues |= AGImageCheckerIssueBlurry;
+                issues |= AGImageCheckerIssueMissaligned;
+            }
+        }
+    }
+    
     self.issues = issues;
 }
 

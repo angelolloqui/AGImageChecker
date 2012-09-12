@@ -12,6 +12,7 @@
 
 @property (readonly, strong) UIScrollView *contentScrollView;
 @property (readonly, strong) UIImageView *targetImageView;
+@property (readonly, strong) UILabel *imageViewPositionLabel;
 @property (readonly, strong) UILabel *imageViewSizeLabel;
 @property (readonly, strong) UILabel *imageSizeLabel;
 @property (readonly, strong) UILabel *imageRetinaLabel;

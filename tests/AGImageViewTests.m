@@ -7,7 +7,6 @@
 //
 
 #import "AGImageViewTests.h"
-#import "AGImageChecker.h"
 #import "UIImageView+AGImageChecker.h"
 
 @implementation AGImageViewTests
@@ -23,7 +22,7 @@
 - (void) setUp {
     [[UIScreen mainScreen] setValue:[NSNumber numberWithInt:1] forKey:@"scale"];
     
-    [[AGImageChecker sharedInstance] start];
+    [UIImageView startCheckingImages];
     self.bundle = [NSBundle bundleForClass:[self class]];
     self.squareSmallImage = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_small_image" ofType:@"png"]];
     self.squareBigImage = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_big_image" ofType:@"png"]];
@@ -35,7 +34,7 @@
 }
 
 - (void)tearDown {
-    [[AGImageChecker sharedInstance] stop];    
+    [UIImageView stopCheckingImages];    
     [[UIScreen mainScreen] setValue:[NSNumber numberWithInt:1] forKey:@"scale"];    
 }
 
@@ -169,12 +168,12 @@
     CGRect frame = squareBigView.frame;
     frame.size.width += 1;
     squareBigView.frame = frame;    
-    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueBlurry), @"The image center into a .5 x should be blurry");
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueBlurry | AGImageCheckerIssueMissaligned), @"The image center into a .5 x should be blurry and missaligned");
 
     frame.size.width -= 1;
     frame.size.height += 1;
     squareBigView.frame = frame;    
-    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueBlurry), @"The image center into a .5 y should be blurry");            
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueBlurry | AGImageCheckerIssueMissaligned), @"The image center into a .5 y should be blurry and missaligned");            
 }
 
 - (void)testChangeFrameProducesIssues {
@@ -226,5 +225,25 @@
     STAssertTrue(squareBigView.issues == (AGImageCheckerIssueNone), @"The image with the correct retina asset should have no issues");            
 }
 
+- (void)testImageMissalignedProducesIssues {
+    CGRect frame = squareBigView.frame;
+    frame.origin.x += 0.5;
+    squareBigView.frame = frame;    
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueBlurry | AGImageCheckerIssueMissaligned), @"The image postioned in .5 x should be blurry and missaligned"); 
+
+    frame.origin.x -= 0.5;
+    frame.origin.y += 0.5;
+    squareBigView.frame = frame;    
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueBlurry | AGImageCheckerIssueMissaligned), @"The image postioned in .5 y should be blurry and missaligned");    
+}
+
+- (void)testFatherMissalignedProducesIssues {
+    UIView *topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+    UIView *parentView = [[UIView alloc] initWithFrame:CGRectMake(0.5, 0, 300, 300)];
+    [parentView addSubview:squareBigView];
+    [topView addSubview:parentView];
+    [squareBigView checkImage];
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueBlurry | AGImageCheckerIssueMissaligned), @"The image into a parent missaligned should be blurry and missaligned");    
+}
 
 @end
