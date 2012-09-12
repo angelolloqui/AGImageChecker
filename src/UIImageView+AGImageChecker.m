@@ -12,11 +12,13 @@
 #define CGSizeIsStrictlyBiggerThan(size1, size2) ((size1.width > size2.width) && (size1.height > size2.height))
 #define CGSizeIsProportionalTo(size1, size2) ((size1.width / size2.width) == (size1.height / size2.height))
 #define floatIsDecimal(num) (num - ((int) num) != 0.0f)
+
 @implementation UIImageView (AGImageChecker)
+
 @dynamic issues;
 
-
 #pragma mark Public API
+
 static BOOL methodsAlreadySwizzled = NO;
 + (void)startCheckingImages {
     if (!methodsAlreadySwizzled) {
@@ -60,30 +62,44 @@ static AGImageIssuesHandler sIssuesHandler = nil;
     Method setInitWithCoderOriginal = class_getInstanceMethod(self, @selector(initWithCoder:));
     Method setInitWithCoderCustom = class_getInstanceMethod(self, @selector(initWithCoderCustom:));
     method_exchangeImplementations(setInitWithCoderOriginal, setInitWithCoderCustom);    
+    
+    //Swizzle the original layoutSubviews method to add our own calls
+    Method setLayoutSubviewsOriginal = class_getInstanceMethod(self, @selector(layoutSubviews));
+    Method setLayoutSubviewsCustom = class_getInstanceMethod(self, @selector(layoutSubviewsCustom));
+    method_exchangeImplementations(setLayoutSubviewsOriginal, setLayoutSubviewsCustom);    
 #endif
 }
 
 - (void)setImageCustom:(UIImage *)image {
     if ([self isKindOfClass:[UIImageView class]]) {
+        UIImage *oldImage = self.image;
         //Call the original method (was swizzled)
-        [self setImageCustom:image];        
-        [self checkImage];
+        [self setImageCustom:image];    
+        if (image != oldImage) {
+            [self checkImage];
+        }
     }
 }
 
 - (void)setFrameCustom:(CGRect)frame {
     if ([self isKindOfClass:[UIImageView class]]) {
+        CGRect oldFrame = self.frame;
         //Call the original method (was swizzled)
         [self setFrameCustom:frame];    
-        [self checkImage];
+        if (!CGRectEqualToRect(frame, oldFrame)) {
+            [self checkImage];
+        }
     }
 }
 
 - (void)setContentModeCustom:(UIViewContentMode)mode {
     if ([self isKindOfClass:[UIImageView class]]) {
+        UIViewContentMode oldMode = self.contentMode;
         //Call the original method (was swizzled)
         [self setContentModeCustom:mode];    
-        [self checkImage];
+        if (mode != oldMode) {
+            [self checkImage];    
+        }
     }
 }
 
@@ -94,6 +110,14 @@ static AGImageIssuesHandler sIssuesHandler = nil;
         [self checkImage];
     }
     return self;
+}
+
+- (void)layoutSubviewsCustom {
+    if ([self isKindOfClass:[UIImageView class]]) {
+        //Call the original method (was swizzled)
+        [self layoutSubviewsCustom];
+        [self checkImage];
+    }
 }
 
 #pragma mark Checking issues
@@ -162,26 +186,21 @@ static AGImageIssuesHandler sIssuesHandler = nil;
         }
     }
     
-    //Check if the view is correctly aligned
-    CGPoint viewPosition = self.frame.origin;
-    if ((floatIsDecimal(viewPosition.x)) || (floatIsDecimal(viewPosition.y))) {
-        issues |= AGImageCheckerIssueBlurry;
-        issues |= AGImageCheckerIssueMissaligned;
-    }
     
-    //If the image seems not to be missaligned, check the parent
+    //If the image seems not to be missaligned, check the parents agains their own parents.
+    //Note: we can not check the image against the window because it may be in a scrollview, animating, with a float contentOffset, but that is correct if the image is correctly aligned within the scroll
     if (!(issues & AGImageCheckerIssueMissaligned)) {
-        UIView *topView = self;
-        while (topView.superview) {
-            topView = topView.superview;
-        }
-        if (topView != self) {
-            CGPoint topPoint = [topView convertPoint:self.frame.origin fromView:self.superview];
-            if ((floatIsDecimal(topPoint.x)) || (floatIsDecimal(topPoint.y))) {
+        UIView *view = self;        
+        while (view) {
+            //Check if the view is correctly aligned
+            CGPoint viewPosition = view.frame.origin;
+            if ((floatIsDecimal(viewPosition.x)) || (floatIsDecimal(viewPosition.y))) {
                 issues |= AGImageCheckerIssueBlurry;
                 issues |= AGImageCheckerIssueMissaligned;
+                break;
             }
-        }
+            view = view.superview;
+        }        
     }
     
     self.issues = issues;

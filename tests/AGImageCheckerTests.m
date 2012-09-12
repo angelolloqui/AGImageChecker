@@ -119,6 +119,13 @@
     [mockController verify];
 }
 
+- (void)testImageCheckerStopsWhenOpeningDetailController {   
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    [[AGImageChecker sharedInstance] start];
+    [[AGImageChecker sharedInstance] openImageDetail:imageView];
+    STAssertFalse([[AGImageChecker sharedInstance] running], @"ImageChecker should stop when presenting the image details");
+}
+
 - (void)testImageCheckerChecksAlreadyLoadedImagesWhenStarted {     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
     [self.rootViewController.view addSubview:imageView];

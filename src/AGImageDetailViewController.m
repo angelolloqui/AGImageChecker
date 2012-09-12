@@ -8,6 +8,7 @@
 
 #import "AGImageDetailViewController.h"
 #import "UIImageView+AGImageChecker.h"
+#import "AGImageChecker.h"
 
 static NSInteger titleWidth = 120;
 static NSInteger padding = 10;
@@ -27,6 +28,7 @@ static NSInteger padding = 10;
 @property (readwrite, strong) UIImageView *orginalImageView;
 @property (readwrite, strong) UIImageView *renderedImageView;
 
+@property (assign) AGImageCheckerIssue targetIssues;
 @property (assign) NSInteger posY;
 @end
 
@@ -44,15 +46,17 @@ static NSInteger padding = 10;
 @synthesize posY;
 @synthesize orginalImageView;
 @synthesize renderedImageView;
-
+@synthesize targetIssues;
 
 #pragma mark Class methods
 + (AGImageDetailViewController *)presentModalForImageView:(UIImageView *)imageView inViewController:(UIViewController *)viewController {
     NSAssert(imageView, @"imageView not set");
     NSAssert(viewController, @"viewController not set");
-    
+        
     AGImageDetailViewController *vc = [[self alloc] init];    
     vc.targetImageView = imageView;
+    vc.targetIssues = imageView.issues;
+    [[AGImageChecker sharedInstance] stop];
     [viewController presentModalViewController:vc animated:YES];
     return vc;    
 }
@@ -78,19 +82,18 @@ static NSInteger padding = 10;
     self.imageSizeLabel = [self addLabelWithTitle:@"Image size:" andText:NSStringFromCGSize(targetImageView.image.size)];
     self.imageRetinaLabel = [self addLabelWithTitle:@"Using retina:" andText:(targetImageView.image.scale > 1)? @"YES" : @"NO"];
     self.contentModeLabel = [self addLabelWithTitle:@"Content Mode:" andText:[self contentModeToString:targetImageView.contentMode]];
-    self.issuesLabel = [self addLabelWithTitle:@"Issues:" andText:[[self descriptionsForIssues:targetImageView.issues] componentsJoinedByString:@",\n"]];
+    self.issuesLabel = [self addLabelWithTitle:@"Issues:" andText:[[self descriptionsForIssues:targetIssues] componentsJoinedByString:@",\n"]];
     self.imageNameLabel = [self addLabelWithTitle:@"Image name:" andText:targetImageView.accessibilityLabel];
     self.controllerNameLabel = [self addLabelWithTitle:@"Controller:" andText:NSStringFromClass([[self controllerForView:targetImageView] class])];    
     self.orginalImageView = [self addImageViewWithTitle:@"Original" andImage:targetImageView.image andSize:targetImageView.image.size];
     self.renderedImageView = [self addImageViewWithTitle:@"Rendered" andImage:targetImageView.image andSize:targetImageView.frame.size];
     self.renderedImageView.contentMode = targetImageView.contentMode;
-    self.renderedImageView.issues = AGImageCheckerIssueNone;    
-
     self.contentScrollView.contentSize = CGSizeMake(MAX(renderedImageView.frame.size.width, orginalImageView.frame.size.width) + padding * 2, posY + padding);
 }
 
 - (void)dismissView {
     [self dismissModalViewControllerAnimated:YES];
+    [[AGImageChecker sharedInstance] start];
 }
 
 - (UILabel *)addLabelWithTitle:(NSString *)title andText:(NSString *)text {  
