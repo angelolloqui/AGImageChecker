@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0B089DF015F8BF6C0097E747 /* square_big_image_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0B089DEF15F8BF6C0097E747 /* square_big_image_2x.png */; };
+		0B4199551600BEEE00781D1A /* AGImageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4199541600BEEE00781D1A /* AGImageTests.m */; };
+		0B4199591600C06B00781D1A /* UIImage+AGImageChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4199581600C06B00781D1A /* UIImage+AGImageChecker.m */; };
 		0B89678315F9F61E0007FE7C /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B89677C15F9F61E0007FE7C /* libOCMock.a */; };
 		0BA2A88815FA32A200CCBAC8 /* UIApplication+Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2A88715FA32A200CCBAC8 /* UIApplication+Tests.m */; };
 		0BBF611815F687BA005175C8 /* rect_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611515F687BA005175C8 /* rect_image.png */; };
@@ -29,6 +31,10 @@
 
 /* Begin PBXFileReference section */
 		0B089DEF15F8BF6C0097E747 /* square_big_image_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square_big_image_2x.png; sourceTree = "<group>"; };
+		0B4199531600BEEE00781D1A /* AGImageTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AGImageTests.h; path = tests/AGImageTests.h; sourceTree = SOURCE_ROOT; };
+		0B4199541600BEEE00781D1A /* AGImageTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGImageTests.m; path = tests/AGImageTests.m; sourceTree = SOURCE_ROOT; };
+		0B4199571600C06B00781D1A /* UIImage+AGImageChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+AGImageChecker.h"; sourceTree = "<group>"; };
+		0B4199581600C06B00781D1A /* UIImage+AGImageChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+AGImageChecker.m"; sourceTree = "<group>"; };
 		0B89677C15F9F61E0007FE7C /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		0B89677D15F9F61E0007FE7C /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
 		0B89677E15F9F61E0007FE7C /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
@@ -168,6 +174,8 @@
 				0BF8C16D15F6636300142BDF /* AGImageViewTests.m */,
 				0BD7D0E715FA440500BDCA60 /* AGImageDetailTests.h */,
 				0BD7D0E815FA440500BDCA60 /* AGImageDetailTests.m */,
+				0B4199531600BEEE00781D1A /* AGImageTests.h */,
+				0B4199541600BEEE00781D1A /* AGImageTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -192,6 +200,8 @@
 				0BF8C16615F6620A00142BDF /* UIImageView+AGImageChecker.m */,
 				0BD7D0DF15FA384C00BDCA60 /* AGImageDetailViewController.h */,
 				0BD7D0E015FA384C00BDCA60 /* AGImageDetailViewController.m */,
+				0B4199571600C06B00781D1A /* UIImage+AGImageChecker.h */,
+				0B4199581600C06B00781D1A /* UIImage+AGImageChecker.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -287,6 +297,8 @@
 				0BA2A88815FA32A200CCBAC8 /* UIApplication+Tests.m in Sources */,
 				0BD7D0E115FA384C00BDCA60 /* AGImageDetailViewController.m in Sources */,
 				0BD7D0E915FA440500BDCA60 /* AGImageDetailTests.m in Sources */,
+				0B4199551600BEEE00781D1A /* AGImageTests.m in Sources */,
+				0B4199591600C06B00781D1A /* UIImage+AGImageChecker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

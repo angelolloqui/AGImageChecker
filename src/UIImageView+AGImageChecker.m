@@ -6,6 +6,7 @@
 //
 
 #import "UIImageView+AGImageChecker.h"
+#import "UIImage+AGImageChecker.h"
 #import <objc/runtime.h>
 
 #define CGSizeIsBiggerThan(size1, size2) ((size1.width > size2.width) || (size1.height > size2.height))
@@ -59,9 +60,9 @@ static AGImageIssuesHandler sIssuesHandler = nil;
     method_exchangeImplementations(setContentModeOriginal, setContentModeCustom);    
     
     //Swizzle the original initWithCoder method to add our own calls
-    Method setInitWithCoderOriginal = class_getInstanceMethod(self, @selector(initWithCoder:));
-    Method setInitWithCoderCustom = class_getInstanceMethod(self, @selector(initWithCoderCustom:));
-    method_exchangeImplementations(setInitWithCoderOriginal, setInitWithCoderCustom);    
+    Method initWithCoderOriginal = class_getInstanceMethod(self, @selector(initWithCoder:));
+    Method initWithCoderCustom = class_getInstanceMethod(self, @selector(initWithCoderCustom:));
+    method_exchangeImplementations(initWithCoderOriginal, initWithCoderCustom);    
     
     //Swizzle the original layoutSubviews method to add our own calls
     Method setLayoutSubviewsOriginal = class_getInstanceMethod(self, @selector(layoutSubviews));
@@ -77,6 +78,9 @@ static AGImageIssuesHandler sIssuesHandler = nil;
         [self setImageCustom:image];    
         if (image != oldImage) {
             [self checkImage];
+            if ([self.accessibilityLabel length] <= 0) {
+                self.accessibilityLabel = image.name;
+            }
         }
     }
 }
@@ -123,10 +127,13 @@ static AGImageIssuesHandler sIssuesHandler = nil;
 #pragma mark Checking issues
 
 - (void)checkImage {
+    
+    //Check Missing images
     AGImageCheckerIssue issues = AGImageCheckerIssueNone;
-    if (self.image == nil) {
+    if (self.image == nil || [self.image isEmptyImage]) {
         issues = AGImageCheckerIssueMissing;
     }
+    //If image not missing, check if it is stretchable
     else if (UIEdgeInsetsEqualToEdgeInsets(self.image.capInsets, UIEdgeInsetsZero)) {       
         CGSize imgSize = self.image.size;
         CGSize viewSize = self.bounds.size;

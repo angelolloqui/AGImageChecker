@@ -199,6 +199,8 @@
 - (void)testMissingImageProducesIssue {
     squareBigView.image = nil;
     STAssertTrue(squareBigView.issues == (AGImageCheckerIssueMissing), @"A nil image should have issue Missing");        
+    squareBigView.image = [[UIImage alloc] init];
+    STAssertTrue(squareBigView.issues == (AGImageCheckerIssueMissing), @"An empty image should have issue Missing");        
 }
 
 - (void)testRetinaDisplayProducesIssueInNonRetinaImages {

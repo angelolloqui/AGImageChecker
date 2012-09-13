@@ -7,6 +7,7 @@
 
 #import "AGImageChecker.h"
 #import "UIImageView+AGImageChecker.h"
+#import "UIImage+AGImageChecker.h"
 #import "AGImageDetailViewController.h"
 #import <QuartzCore/QuartzCore.h>
 
@@ -53,6 +54,7 @@ static AGImageChecker *sharedInstance = nil;
         [UIImageView setImageIssuesHandler:^(UIImageView *imageView, AGImageCheckerIssue issues) {
             [[AGImageChecker sharedInstance] drawIssues:issues forImageView:imageView];
         }];
+        [UIImage startSavingNames];
         [self.rootViewController.view addGestureRecognizer:tapGesture];
         NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
         for (UIImageView *imageView in loadedImageViews) {
@@ -66,6 +68,7 @@ static AGImageChecker *sharedInstance = nil;
         self.running = NO;
         [UIImageView stopCheckingImages];
         [UIImageView setImageIssuesHandler:nil];
+        [UIImage stopSavingNames];
         [self.rootViewController.view removeGestureRecognizer:tapGesture];
         NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
         for (UIImageView *imageView in loadedImageViews) {
