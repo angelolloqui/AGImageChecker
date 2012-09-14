@@ -8,13 +8,14 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 #import <UIKit/UIKit.h>
+#import "AGImageChecker.h"
 
 @interface AGImageCheckerTests : SenTestCase
 
 @property (strong) UIViewController *rootViewController;
-
+@property (strong) AGImageChecker *imageChecker;
 @property (strong) id mockRootViewController;
 @property (strong) id mockRootView;
-
+@property (strong) UIImageView *imageView;
 
 @end

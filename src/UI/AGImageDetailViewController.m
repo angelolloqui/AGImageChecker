@@ -8,6 +8,7 @@
 
 #import "AGImageDetailViewController.h"
 #import "UIImageView+AGImageChecker.h"
+#import "UIImage+AGImageChecker.h"
 #import "AGImageChecker.h"
 
 static NSInteger titleWidth = 120;
@@ -76,6 +77,10 @@ static NSInteger padding = 10;
     [self.view addSubview:self.contentScrollView];
     
     self.posY = padding;
+    NSString *imageName = targetImageView.accessibilityLabel;
+    if ([imageName length] <= 0) {
+        imageName = targetImageView.image.name;
+    }
     
     self.imageViewSizeLabel = [self addLabelWithTitle:@"View position:" andText:NSStringFromCGPoint(targetImageView.frame.origin)];
     self.imageViewSizeLabel = [self addLabelWithTitle:@"View size:" andText:NSStringFromCGSize(targetImageView.frame.size)];
@@ -83,7 +88,7 @@ static NSInteger padding = 10;
     self.imageRetinaLabel = [self addLabelWithTitle:@"Using retina:" andText:(targetImageView.image.scale > 1)? @"YES" : @"NO"];
     self.contentModeLabel = [self addLabelWithTitle:@"Content Mode:" andText:[self contentModeToString:targetImageView.contentMode]];
     self.issuesLabel = [self addLabelWithTitle:@"Issues:" andText:[[self descriptionsForIssues:targetIssues] componentsJoinedByString:@",\n"]];
-    self.imageNameLabel = [self addLabelWithTitle:@"Image name:" andText:targetImageView.accessibilityLabel];
+    self.imageNameLabel = [self addLabelWithTitle:@"Image name:" andText:imageName];
     self.controllerNameLabel = [self addLabelWithTitle:@"Controller:" andText:NSStringFromClass([[self controllerForView:targetImageView] class])];    
     self.orginalImageView = [self addImageViewWithTitle:@"Original" andImage:targetImageView.image andSize:targetImageView.image.size];
     self.renderedImageView = [self addImageViewWithTitle:@"Rendered" andImage:targetImageView.image andSize:targetImageView.frame.size];

@@ -9,11 +9,10 @@
 #import "UIImageView+AGImageChecker.h"
 #import "UIImage+AGImageChecker.h"
 #import "AGImageDetailViewController.h"
-#import <QuartzCore/QuartzCore.h>
+#import "AGImageCheckerBasePlugin.h"
 
 @interface AGImageChecker()
 @property(readwrite) BOOL running;
-@property(readwrite, strong) UILongPressGestureRecognizer *tapGesture;
 @end
 
 @implementation AGImageChecker
@@ -21,6 +20,7 @@
 @synthesize running;
 @synthesize tapGesture;
 @synthesize rootViewController;
+@synthesize plugins;
 
 #pragma mark Life cycle
 
@@ -39,8 +39,9 @@ static AGImageChecker *sharedInstance = nil;
 - (id)init {
     self = [super init];
     if (self) {
-        self.running = NO;
-        self.tapGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnWindow)];
+        running = NO;
+        tapGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnWindow)];
+        plugins = [[NSMutableArray alloc] initWithObjects:[[AGImageCheckerBasePlugin alloc] init], nil];
     }
     return self;
 }
@@ -51,14 +52,18 @@ static AGImageChecker *sharedInstance = nil;
     if (!self.running) {
         self.running = YES;
         [UIImageView startCheckingImages];
-        [UIImageView setImageIssuesHandler:^(UIImageView *imageView, AGImageCheckerIssue issues) {
-            [[AGImageChecker sharedInstance] drawIssues:issues forImageView:imageView];
+        __block id blockSelf = self;
+        [UIImageView setImageIssuesHandler:^(UIImageView *imageView) {
+            [blockSelf changeIssues:imageView];
+        }];
+        [UIImageView setImageCheckHandler:^(UIImageView *imageView) {
+            [blockSelf checkIssues:imageView];
         }];
         [UIImage startSavingNames];
         [self.rootViewController.view addGestureRecognizer:tapGesture];
         NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
         for (UIImageView *imageView in loadedImageViews) {
-            [imageView checkImage];
+            [self checkIssues:imageView];
         }
     }
 }
@@ -68,6 +73,7 @@ static AGImageChecker *sharedInstance = nil;
         self.running = NO;
         [UIImageView stopCheckingImages];
         [UIImageView setImageIssuesHandler:nil];
+        [UIImageView setImageCheckHandler:nil];
         [UIImage stopSavingNames];
         [self.rootViewController.view removeGestureRecognizer:tapGesture];
         NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
@@ -84,36 +90,35 @@ static AGImageChecker *sharedInstance = nil;
     return rootViewController;
 }
 
-#pragma mark Drawing
-
-- (void)drawIssues:(AGImageCheckerIssue)issues forImageView:(UIImageView *)imageView  {
-    
-    imageView.layer.borderWidth = 0;
-    imageView.layer.borderColor = nil;
-    
-    if (!imageView.hidden && imageView.alpha > 0) {
-        if (issues != AGImageCheckerIssueNone) {
-            imageView.layer.borderWidth = 1;
-            imageView.layer.borderColor = [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.5].CGColor;
-        }
-        
-        if (issues & AGImageCheckerIssueBlurry) {
-            imageView.layer.borderWidth = 2;
-            imageView.layer.borderColor = [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.8].CGColor;
-        }
-        
-        if (issues & AGImageCheckerIssueStretched) {
-            imageView.layer.borderWidth = 2;
-            imageView.layer.borderColor = [UIColor orangeColor].CGColor;
-        }    
-        
-        if (issues & AGImageCheckerIssueMissing) {
-            imageView.layer.borderWidth = 4;
-            imageView.layer.borderColor = [UIColor redColor].CGColor;
-        }    
+- (void)addPlugin:(id<AGImageCheckerPluginProtocol>)plugin {
+    if (![self.plugins containsObject:plugin]) {
+        [(NSMutableArray *)self.plugins addObject:plugin];
     }
 }
 
+- (void)removePlugin:(id<AGImageCheckerPluginProtocol>)plugin {    
+    [(NSMutableArray *)self.plugins removeObject:plugin];
+}
+
+#pragma mark Checking and Drawing
+
+- (void)changeIssues:(UIImageView *)imageView  {
+    for (id<AGImageCheckerPluginProtocol> plugin in plugins) {
+        if ([plugin respondsToSelector:@selector(didFinishCalculatingIssues:)]) {
+            [plugin didFinishCalculatingIssues:imageView];
+        }
+    }
+}
+
+- (void)checkIssues:(UIImageView *)imageView {
+    AGImageCheckerIssue issues = AGImageCheckerIssueNone;
+    for (id<AGImageCheckerPluginProtocol> plugin in plugins) {
+        if ([plugin respondsToSelector:@selector(calculateIssues:withIssues:)]) {
+            issues = [plugin calculateIssues:imageView withIssues:issues];
+        }
+    }
+    imageView.issues = issues;
+}
 
 #pragma mark Handling interaction
 

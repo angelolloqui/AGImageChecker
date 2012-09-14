@@ -9,6 +9,7 @@
 #import "AGImageCheckerTests.h"
 #import "AGImageChecker.h"
 #import "UIImageView+AGImageChecker.h"
+#import "AGImageCheckerBasePlugin.h"
 
 @interface AGImageChecker(private)
 - (void)tapOnWindow;
@@ -19,8 +20,11 @@
 @synthesize rootViewController;
 @synthesize mockRootView;
 @synthesize mockRootViewController;
+@synthesize imageChecker;
+@synthesize imageView;
 
 - (void)setUp {
+    imageChecker = [[AGImageChecker alloc] init];
     rootViewController = [[UIViewController alloc] init];    
     [rootViewController setView:[[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)]];
     
@@ -28,60 +32,103 @@
     mockRootViewController = [OCMockObject niceMockForClass:[UIViewController class]];
     [[[mockRootViewController stub] andReturn:mockRootView] view];
     
-    [[AGImageChecker sharedInstance] setRootViewController:rootViewController];
+    imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+    [imageChecker setRootViewController:rootViewController];
 }
 
 - (void) tearDown {
     [UIApplication resetApplication];
-    [[AGImageChecker sharedInstance] stop];
+    [imageChecker stop];
 }
 
 - (void)testImageCheckerIsInstanciated {
-    STAssertNotNil([AGImageChecker sharedInstance], @"Can not instanciate the AGImageChecker");
+    STAssertNotNil(imageChecker, @"Can not instanciate the AGImageChecker");
 }
 
 - (void)testImageCheckerIsSingleton {
-    STAssertEquals([AGImageChecker sharedInstance], [AGImageChecker sharedInstance], @"Can not instanciate the AGImageChecker");
+    STAssertEquals(imageChecker, imageChecker, @"Can not instanciate the AGImageChecker");
 }
 
 - (void)testImageCheckerCanStartMonitoring {
-    STAssertNoThrow([[AGImageChecker sharedInstance] start], @"Can not instanciate the AGImageChecker");
-    STAssertTrue([[AGImageChecker sharedInstance] running], @"AGImageChecker should be running");
+    STAssertNoThrow([imageChecker start], @"Can not instanciate the AGImageChecker");
+    STAssertTrue([imageChecker running], @"AGImageChecker should be running");
 }
 
 - (void)testImageCheckerDoNotFailIfMultipleStart {
-    [[AGImageChecker sharedInstance] start];
-    STAssertNoThrow([[AGImageChecker sharedInstance] start], @"Can not instanciate the AGImageChecker for a second time");
-    STAssertTrue([[AGImageChecker sharedInstance] running], @"AGImageChecker should be running");
+    [imageChecker start];
+    STAssertNoThrow([imageChecker start], @"Can not instanciate the AGImageChecker for a second time");
+    STAssertTrue([imageChecker running], @"AGImageChecker should be running");
 }
 
 - (void)testImageCheckerCanStopMonitoring {
-    STAssertNoThrow([[AGImageChecker sharedInstance] stop], @"Can not instanciate the AGImageChecker");
-    STAssertFalse([[AGImageChecker sharedInstance] running], @"AGImageChecker should not be running");
+    STAssertNoThrow([imageChecker stop], @"Can not instanciate the AGImageChecker");
+    STAssertFalse([imageChecker running], @"AGImageChecker should not be running");
 }
 
 - (void)testImageCheckerCanAssignRootViewController {
     UIViewController *vc = [[UIViewController alloc] init];
-    STAssertNoThrow([[AGImageChecker sharedInstance] setRootViewController:vc], @"Can not set the rootViewController for the AGImageChecker");
-    STAssertEquals([[AGImageChecker sharedInstance] rootViewController], vc, @"RootViewController not correctly assigned in AGImageChecker");
+    STAssertNoThrow([imageChecker setRootViewController:vc], @"Can not set the rootViewController for the AGImageChecker");
+    STAssertEquals([imageChecker rootViewController], vc, @"RootViewController not correctly assigned in AGImageChecker");
 }
 
 - (void)testImageCheckerAutoAssignRootViewControllerOfTheApp {   
-    STAssertNoThrow([[AGImageChecker sharedInstance] setRootViewController:nil], @"Can not set the rootViewController for the AGImageChecker");
+    STAssertNoThrow([imageChecker setRootViewController:nil], @"Can not set the rootViewController for the AGImageChecker");
     UIViewController *vc = [[UIViewController alloc] init];
     id keyWindow = [[UIApplication sharedApplication] keyWindow];
     [[[keyWindow stub] andReturn:vc] rootViewController];
-    STAssertEquals([[AGImageChecker sharedInstance] rootViewController], vc, @"RootViewController should come from the Window root view controller if none set in AGImageChecker");
+    STAssertEquals([imageChecker rootViewController], vc, @"RootViewController should come from the Window root view controller if none set in AGImageChecker");
 }
 
-- (void)testImageCheckerCorrectlySetGesturesInWindow {    
-    [[AGImageChecker sharedInstance] setRootViewController:mockRootViewController];
-    [[mockRootView expect] addGestureRecognizer:[AGImageChecker sharedInstance].tapGesture];
-    [[AGImageChecker sharedInstance] start];
+- (void)testImageCheckerInstantiatesBasePlugin {
+    [imageChecker start];
+    STAssertTrue([[imageChecker plugins] count] > 0, @"No plugins created by default");
+        
+    STAssertTrue([[[imageChecker plugins] objectAtIndex:0] isKindOfClass:[AGImageCheckerBasePlugin class]], @"First plugin in the list should be the BasePlugin");
+}
+
+- (void)testImageCheckerAllowsAddingAndRemovingPlugins {
+    STAssertTrue([[imageChecker plugins] count] == 1, @"Only one plugin expected");
+    id<AGImageCheckerPluginProtocol> plugin = [OCMockObject mockForProtocol:@protocol(AGImageCheckerPluginProtocol)];
+    [imageChecker addPlugin:plugin];
+    [imageChecker addPlugin:plugin];
+    STAssertTrue([[imageChecker plugins] count] == 2, @"Two plugins expected");
+    [imageChecker removePlugin:plugin];
+    STAssertTrue([[imageChecker plugins] count] == 1, @"One plugins expected");
+}
+
+- (void)testImageCheckerCallsPluginsForChecking {
+    id plugin = [OCMockObject niceMockForProtocol:@protocol(AGImageCheckerPluginProtocol)];
+    [imageChecker addPlugin:plugin];
+    [imageChecker start];
+    AGImageCheckerIssue issues = AGImageCheckerIssueMissing;
+    [[plugin expect] calculateIssues:imageView withIssues:issues];
+    [imageView layoutSubviews];
+    [plugin verify];
+}
+
+- (void)testImageCheckerStoreCheckingResult {
+    [imageChecker start];
+    [imageView layoutSubviews];
+    STAssertTrue(imageView.issues != AGImageCheckerIssueNone, @"Issues should be calculated");
+}
+
+- (void)testImageCheckerCallsPluginsForDrawing {
+    id plugin = [OCMockObject mockForProtocol:@protocol(AGImageCheckerPluginProtocol)];
+    [imageChecker addPlugin:plugin];
+    [imageChecker start];
+    [[plugin expect] didFinishCalculatingIssues:imageView];
+    imageView.issues = AGImageCheckerIssueMissing;
+    [plugin verify];
+}
+
+- (void)testImageCheckerCorrectlySetGesturesInWindow {
+    [imageChecker setRootViewController:mockRootViewController];
+    [[mockRootView expect] addGestureRecognizer:imageChecker.tapGesture];
+    [imageChecker start];
     [mockRootView verify];
     
-    [[mockRootView expect] removeGestureRecognizer:[AGImageChecker sharedInstance].tapGesture];
-    [[AGImageChecker sharedInstance] stop];    
+    [[mockRootView expect] removeGestureRecognizer:imageChecker.tapGesture];
+    [imageChecker stop];    
     [mockRootView verify];    
 }
 
@@ -91,46 +138,42 @@
     //Mock objects
     id mockGesture = [OCMockObject mockForClass:[UITapGestureRecognizer class]];
     [[[mockGesture stub] andReturnValue:[NSValue valueWithCGPoint:point]] locationInView:rootViewController.view];
-    id mockImageChecker = [OCMockObject partialMockForObject:[AGImageChecker sharedInstance]];
+    id mockImageChecker = [OCMockObject partialMockForObject:imageChecker];
     [[[mockImageChecker stub] andReturn:mockGesture] tapGesture];
     
     //Create simple view with two levels and with two images on second level (one on top of the other)
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(20, 20, 50, 50)];
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
     [view addSubview:imageView];    
     imageView = [[UIImageView alloc] initWithFrame:CGRectMake(25, 25, 10, 10)];
     [view addSubview:imageView];    
     [self.rootViewController.view addSubview:view];
     
     //Check
-    [[AGImageChecker sharedInstance] start];
+    [imageChecker start];
     [[mockImageChecker expect] openImageDetail:imageView];
     [mockImageChecker tapOnWindow];
     [mockImageChecker verify];
 }
 
 - (void)testImageCheckerOpensDetailController {    
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
     id mockController = [OCMockObject partialMockForObject:rootViewController];
-    [[AGImageChecker sharedInstance] setRootViewController:mockController];
-    [[AGImageChecker sharedInstance] start];
+    [imageChecker setRootViewController:mockController];
+    [imageChecker start];
     [[mockController expect] presentModalViewController:[OCMArg any] animated:YES];
-    [[AGImageChecker sharedInstance] openImageDetail:imageView];    
+    [imageChecker openImageDetail:imageView];    
     [mockController verify];
 }
 
 - (void)testImageCheckerStopsWhenOpeningDetailController {   
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
     [[AGImageChecker sharedInstance] start];
-    [[AGImageChecker sharedInstance] openImageDetail:imageView];
-    STAssertFalse([[AGImageChecker sharedInstance] running], @"ImageChecker should stop when presenting the image details");
+    [imageChecker openImageDetail:imageView];
+    STAssertFalse([imageChecker running], @"ImageChecker should stop when presenting the image details");
+    [[AGImageChecker sharedInstance] stop];
 }
 
-- (void)testImageCheckerChecksAlreadyLoadedImagesWhenStarted {     
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+- (void)testImageCheckerChecksAlreadyLoadedImagesWhenStarted {
     [self.rootViewController.view addSubview:imageView];
-    STAssertTrue(imageView.issues == AGImageCheckerIssueNone, @"Image view should not have issues before starting");
-    [[AGImageChecker sharedInstance] start];
+    [imageChecker start];
     STAssertTrue(imageView.issues != AGImageCheckerIssueNone, @"Image view loaded should have issue missing at least");
 }
 

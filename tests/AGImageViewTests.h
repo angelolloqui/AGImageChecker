@@ -9,11 +9,9 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 @interface AGImageViewTests : SenTestCase
+
 @property(strong) NSBundle *bundle;
-@property(strong) UIImage *squareBigImage;
-@property(strong) UIImage *squareSmallImage;
-@property(strong) UIImage *rectImage;
-@property(strong) UIImageView *squareBigView;
-@property(strong) UIImageView *squareSmallView;
-@property(strong) UIImageView *rectView;
+@property(strong) UIImage *image;
+@property(strong) UIImageView *imageView;
+
 @end

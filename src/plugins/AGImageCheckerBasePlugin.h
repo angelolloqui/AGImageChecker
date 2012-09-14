@@ -1,0 +1,14 @@
+//
+//  AGImageCheckerBasePlugin.h
+//  AGImageChecker
+//
+//  Created by Angel Garcia on 9/14/12.
+//  Copyright (c) 2012 angelolloqui.com. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "AGImageCheckerPluginProtocol.h"
+
+@interface AGImageCheckerBasePlugin : NSObject <AGImageCheckerPluginProtocol>
+
+@end
