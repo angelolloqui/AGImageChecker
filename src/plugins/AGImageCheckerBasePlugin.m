@@ -129,6 +129,9 @@
         if (issues & AGImageCheckerIssueMissing) {
             imageView.layer.borderWidth = 4;
             imageView.layer.borderColor = [UIColor redColor].CGColor;
+            if (imageView.image.name) {
+                NSLog(@"[AGImageChecker] Could not load the image named \"%@\"", imageView.image.name);
+            }
         }
     }
 }
