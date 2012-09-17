@@ -19,4 +19,8 @@
 // Notifies about the results of issues. Usually draw operations performed here
 - (void)didFinishCalculatingIssues:(UIImageView *)imageView;
 
+// Returns a view for the detail popover with the plugin options
+- (UIView *)detailForViewController:(UIViewController *)viewController withImageView:(UIImageView *)imageView withIssues:(AGImageCheckerIssue)issues;
+
+
 @end

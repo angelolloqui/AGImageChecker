@@ -9,6 +9,8 @@
 #import "AGImageCheckerBasePlugin.h"
 #import "UIImageView+AGImageChecker.h"
 #import "UIImage+AGImageChecker.h"
+#import "AGImageCheckerBaseDetailView.h"
+
 #import <QuartzCore/QuartzCore.h>
 
 #define CGSizeIsBiggerThan(size1, size2) ((size1.width > size2.width) || (size1.height > size2.height))
@@ -134,6 +136,15 @@
             }
         }
     }
+}
+
+- (UIView *)detailForViewController:(UIViewController *)viewController
+            withImageView:(UIImageView *)imageView
+               withIssues:(AGImageCheckerIssue)issues {
+    AGImageCheckerBaseDetailView *detailView = [[AGImageCheckerBaseDetailView alloc] initWithImageView:imageView
+                                                                                             andIssues:issues
+                                                                                              andWidth:viewController.view.frame.size.width];
+    return detailView;
 }
 
 @end
