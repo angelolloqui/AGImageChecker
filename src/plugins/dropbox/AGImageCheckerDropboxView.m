@@ -18,17 +18,24 @@
 @implementation AGImageCheckerDropboxView
 
 @synthesize uploadHandler;
+@synthesize downloadHandler;
 @synthesize imageView;
 
 - (id)initWithImageView:(UIImageView *)targetImageView andIssues:(AGImageCheckerIssue)targetIssues andWidth:(CGFloat)width {
-    self = [super initWithFrame:CGRectMake(0, 0, width, 50)];
+    self = [super initWithFrame:CGRectMake(0, 0, width, 80)];
     
     if (self) {
         UIButton *sendButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        sendButton.frame = CGRectMake(10, 5, 150, 40);
+        sendButton.frame = CGRectMake(10, 5, 250, 30);
         [sendButton setTitle:@"Upload To Dropbox" forState:UIControlStateNormal];
         [sendButton addTarget:self action:@selector(uploadToDropbox) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:sendButton];
+        
+        UIButton *downloadButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        downloadButton.frame = CGRectMake(10, 40, 250, 30);
+        [downloadButton setTitle:@"Download From Dropbox" forState:UIControlStateNormal];
+        [downloadButton addTarget:self action:@selector(downloadFromDropbox) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:downloadButton];        
         
         self.imageView = targetImageView;
     }
@@ -40,6 +47,13 @@
 - (void)uploadToDropbox {
     if (uploadHandler) {
         uploadHandler(imageView);
+    }
+}
+
+
+- (void)downloadFromDropbox {
+    if (downloadHandler) {
+        downloadHandler(imageView);
     }
 }
 

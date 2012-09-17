@@ -13,6 +13,7 @@
 @interface AGImageCheckerDropboxView : UIView
 
 @property (nonatomic, copy) AGImageViewHandler uploadHandler;
+@property (nonatomic, copy) AGImageViewHandler downloadHandler;
 
 - (id)initWithImageView:(UIImageView *)targetImageView andIssues:(AGImageCheckerIssue)targetIssues andWidth:(CGFloat)width;
 
