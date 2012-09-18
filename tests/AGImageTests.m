@@ -63,10 +63,10 @@ static NSString *kIncorrectPath = @"path_to/incorrect_image.png";
     STAssertNotNil(self.incorrectPathImage.name, @"Image should have a name");
     STAssertNotNil(self.resizableImage.name, @"Image should have a name");
     
-    STAssertTrue([self.image.name rangeOfString:kImageName].location == 0, @"Image does not have the proper name");
-    STAssertTrue([self.incorrectNamedImage.name rangeOfString:kIncorrectName].location == 0, @"Image does not have the proper name");
-    STAssertTrue([self.incorrectPathImage.name rangeOfString:kIncorrectName].location == 0, @"Image does not have the proper name");
-    STAssertTrue([self.resizableImage.name rangeOfString:kImageName].location == 0, @"Resizable Image does not have the proper name");
+    STAssertTrue([self.image.name rangeOfString:kImageName].location != NSNotFound, @"Image does not have the proper name");
+    STAssertTrue([self.incorrectNamedImage.name rangeOfString:kIncorrectName].location != NSNotFound, @"Image does not have the proper name");
+    STAssertTrue([self.incorrectPathImage.name rangeOfString:kIncorrectName].location != NSNotFound, @"Image does not have the proper name");
+    STAssertTrue([self.resizableImage.name rangeOfString:kImageName].location != NSNotFound, @"Resizable Image does not have the proper name");
 }
 
 

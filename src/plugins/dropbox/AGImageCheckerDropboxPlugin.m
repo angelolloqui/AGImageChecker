@@ -10,6 +10,7 @@
 #import "AGImageChecker.h"
 #import "AGImageCheckerDropboxView.h"
 #import "UIImage+AGImageChecker.h"
+#import "UIImageView+AGImageCheckerDropbox.h"
 #import <DropboxSDK/DropboxSDK.h>
 #import <QuartzCore/QuartzCore.h>
 
@@ -37,6 +38,9 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 
 + (BOOL)handleOpenURL:(NSURL *)url {    
     if ([[DBSession sharedSession] handleOpenURL:url]) {
+        if (![[DBSession sharedSession] isLinked]) {
+            NSLog(@"Problem login with Dropbox!");        
+        }
         return YES;
     }
     return NO;
@@ -50,10 +54,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
                                                             root:kDBRootAppFolder];
         [DBSession setSharedSession:dbSession];
         dbClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
-        dbClient.delegate = self;
-        srand(time(NULL));
-        
-        [[NSFileManager defaultManager] createDirectoryAtPath:[self localImagePath:nil] withIntermediateDirectories:YES attributes:nil error:nil];
+        dbClient.delegate = self; 
     }
     return self;
 }
@@ -61,19 +62,26 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 #pragma mark AGImageCheckerPluginProtocol
 
 - (void)didFinishCalculatingIssues:(UIImageView *)imageView {
-    //Check if the image has a dropbox version
-    NSString *localImagePath = [self localImagePath:imageView];
-    BOOL shouldLoadFromDropbox = (([[[localImagePath lastPathComponent] pathExtension] isEqualToString:@"png"]) &&
-                               ([[NSFileManager defaultManager] fileExistsAtPath:localImagePath]));
-    if (shouldLoadFromDropbox) {
-        //Not yet loaded
-        if (![imageView.image.name isEqualToString:[localImagePath lastPathComponent]]) {
-            UIImage *image = [UIImage imageWithContentsOfFile:localImagePath];
-            imageView.image = image;
+    if ([imageView localDropboxImageExists]) {
+        if (imageView.originalImage == nil) {
+            UIImage *image = [UIImage imageWithContentsOfFile:[imageView localDropboxImagePath]];
+            if (image) {
+                imageView.originalImage = imageView.image;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    imageView.image = image;
+                });
+            }
         }
         else {
             imageView.layer.borderWidth = 1;
             imageView.layer.borderColor = [UIColor blueColor].CGColor;
+        }
+    }
+    else {
+        if (imageView.originalImage) {
+            UIImage *original = imageView.originalImage;
+            imageView.originalImage = nil;
+            imageView.image = original;
         }
     }
 }
@@ -90,6 +98,9 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     detailView.downloadHandler = ^(UIImageView *imageView) {
         [self downloadFromDropbox:imageView];
     };
+    detailView.removeHandler = ^(UIImageView *imageView) {
+        [self removeFromLocalStorage:imageView];
+    };
     self.detailController = viewController;
     return detailView;
 }
@@ -102,7 +113,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
         [[DBSession sharedSession] linkFromController:detailController];
     }
     else {
-        NSString *remotePath = [self remoteImagePath:imageView];
+        NSString *remotePath = [imageView dropboxImagePath];
         if (remotePath) {
             UIImageView *renderedImageView = [[UIImageView alloc] initWithFrame:imageView.bounds];
             renderedImageView.image = imageView.image;
@@ -123,14 +134,23 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
         [[DBSession sharedSession] linkFromController:detailController];
     }
     else {
-        NSString *remotePath = [self remoteImagePath:imageView];
+        NSString *remotePath = [imageView dropboxImagePath];
         if (remotePath) {
             remotePath = [NSString stringWithFormat:@"/%@", remotePath];
-            NSString *localPath = [self localImagePath:imageView];
+            NSString *localPath = [imageView localDropboxImagePath];
+            NSString *directory = [localPath stringByDeletingLastPathComponent];
+            [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
             [dbClient loadFile:remotePath intoPath:localPath];
         }
     }
 }
+
+- (void)removeFromLocalStorage:(UIImageView *)imageView {    
+    NSString *localImagePath = [imageView localDropboxImagePath];
+    [[NSFileManager defaultManager] removeItemAtPath:localImagePath error:nil];
+}
+
+#pragma mark Image Utils
 
 - (UIImage *)imageWithView:(UIView *)view {
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 0.0);
@@ -145,25 +165,6 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     NSData *binaryImageData = UIImagePNGRepresentation(image);
     [binaryImageData writeToFile:randomPath atomically:YES];
     return randomPath;
-}
-
-- (NSString *)remoteImagePath:(UIImageView *)imageView {
-    NSString *filename = imageView.accessibilityLabel;
-    if ([filename length] <= 0) {
-        filename = imageView.image.name;
-    }
-    return [[filename stringByReplacingOccurrencesOfString:@"//" withString:@"/"] stringByReplacingOccurrencesOfString:@":" withString:@""];
-}
-
-- (NSString *)localImagePath:(UIImageView *)imageView {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-    basePath = [basePath stringByAppendingPathComponent:@"AGImageChekerDropbox" isDirectory:YES];
-    NSString *filename = [self remoteImagePath:imageView];
-    if (!filename)
-        return basePath;
-    else
-        return [[basePath stringByAppendingPathComponent:[filename MD5]] stringByAppendingPathExtension:@"png"];
 }
 
 @end

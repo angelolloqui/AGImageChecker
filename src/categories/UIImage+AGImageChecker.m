@@ -89,7 +89,7 @@ static BOOL methodsAlreadySwizzled = NO;
     if (image == nil) {
         image = [[UIImage alloc] init];
     }
-    image.name = [path lastPathComponent];
+    image.name = path;
     return image;
 }
 
