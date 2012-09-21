@@ -77,7 +77,7 @@ static NSInteger padding = 10;
     titleLabel.text = title;
     [self addSubview:titleLabel];
     
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(titleWidth + padding * 2, maxPoint.y, self.frame.size.width - titleWidth - padding * 2, 9999)];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(titleWidth + padding * 2, maxPoint.y, self.frame.size.width - titleWidth - padding * 3, 9999)];
     label.textColor = [UIColor whiteColor];
     label.backgroundColor = [UIColor clearColor];
     label.numberOfLines = 0;
