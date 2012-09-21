@@ -14,6 +14,7 @@
 
 @property (readwrite, strong) UIScrollView *contentScrollView;
 @property (readwrite, strong) UIImageView *targetImageView;
+@property (readwrite, strong) UIActivityIndicatorView *indicator;
 
 @property (assign) AGImageCheckerIssue targetIssues;
 
@@ -23,6 +24,7 @@
 @synthesize contentScrollView;
 @synthesize targetImageView;
 @synthesize targetIssues;
+@synthesize indicator;
 
 #pragma mark Class methods
 + (AGImageDetailViewController *)presentModalForImageView:(UIImageView *)imageView inViewController:(UIViewController *)viewController {
@@ -39,19 +41,13 @@
 
 #pragma mark Instance methods
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    self.view.backgroundColor = [UIColor blackColor];
+- (void)refreshContentView {
+    [self.contentScrollView removeFromSuperview];
     
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissView)];
-    tapGesture.delegate = self;
-    [self.view addGestureRecognizer:tapGesture];
-
     self.contentScrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
     self.contentScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:self.contentScrollView];
-    
+
     CGPoint lastPoint = CGPointZero;
     for (id<AGImageCheckerPluginProtocol>plugin in [[AGImageChecker sharedInstance] plugins]) {
         if ([plugin respondsToSelector:@selector(detailForViewController:withImageView:withIssues:)]) {
@@ -65,8 +61,27 @@
                 lastPoint.x = MAX(lastPoint.x , CGRectGetMaxX(frame));
             }
         }
-    }    
+    }
     self.contentScrollView.contentSize = CGSizeMake(lastPoint.x, lastPoint.y);
+    [self.view bringSubviewToFront:self.indicator];
+}
+
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor blackColor];
+    self.indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.indicator.center = self.view.center;
+    self.indicator.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
+    self.indicator.hidesWhenStopped = YES;
+    [self.indicator stopAnimating];
+    [self.view addSubview:indicator];
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissView)];
+    tapGesture.delegate = self;
+    [self.view addGestureRecognizer:tapGesture];
+    [self refreshContentView];
 }
 
 - (void)dismissView {

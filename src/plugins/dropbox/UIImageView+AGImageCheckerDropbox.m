@@ -13,6 +13,12 @@
 @implementation UIImageView (AGImageCheckerDropbox)
 @dynamic originalImage;
 
+- (NSString *)dropboxBasePath {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+    return [basePath stringByAppendingPathComponent:@"AGImageChekerDropbox" isDirectory:YES];
+}
+
 - (NSString *)dropboxImagePath {
     NSString *filename = self.accessibilityLabel;
     if ([filename length] <= 0) {
@@ -20,17 +26,16 @@
         if (!filename)
             filename = self.image.name;
     }
+    NSString *basePath = [self dropboxBasePath];
+    filename = [filename stringByReplacingOccurrencesOfString:basePath withString:@""];
     return [[filename stringByReplacingOccurrencesOfString:@"//" withString:@"/"] stringByReplacingOccurrencesOfString:@":" withString:@""];
 }
 
 - (NSString *)localDropboxImagePath {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-    basePath = [basePath stringByAppendingPathComponent:@"AGImageChekerDropbox" isDirectory:YES];
     NSString *filename = [self dropboxImagePath];
     if (!filename)
         return nil;
-    return [basePath stringByAppendingString:filename];
+    return [[self dropboxBasePath] stringByAppendingString:filename];
 }
 
 - (BOOL)localDropboxImageExists {

@@ -11,20 +11,23 @@
 #import "AGImageCheckerDropboxView.h"
 #import "UIImage+AGImageChecker.h"
 #import "UIImageView+AGImageCheckerDropbox.h"
+#import "AGDBSession.h"
+#import "AGImageDetailViewController.h"
 #import <DropboxSDK/DropboxSDK.h>
 #import <QuartzCore/QuartzCore.h>
 
 @interface AGImageCheckerDropboxPlugin () <DBRestClientDelegate>
 
 @property (nonatomic, strong) DBRestClient *dbClient;
-@property (nonatomic, assign) UIViewController *detailController;
-
+@property (nonatomic, assign) AGImageDetailViewController *detailController;
+@property (nonatomic, strong) UIImageView *targetImageView;
 @end
 
 @implementation AGImageCheckerDropboxPlugin
 
 @synthesize dbClient;
 @synthesize detailController;
+@synthesize targetImageView;
 
 static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 + (void)addPluginWithAppKey:(NSString *)appKey appSecret:(NSString *)appSecret {        
@@ -41,6 +44,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
         if (![[DBSession sharedSession] isLinked]) {
             NSLog(@"Problem login with Dropbox!");        
         }
+        [pluginInstance.detailController refreshContentView];
         return YES;
     }
     return NO;
@@ -49,12 +53,10 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 - (id)initWithAppKey:(NSString *)appKey appSecret:(NSString *)appSecret {
     self = [super init];
     if (self) {
-        DBSession* dbSession = [[DBSession alloc] initWithAppKey:appKey
+        DBSession* dbSession = [[AGDBSession alloc] initWithAppKey:appKey
                                                        appSecret:appSecret
                                                             root:kDBRootAppFolder];
         [DBSession setSharedSession:dbSession];
-        dbClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
-        dbClient.delegate = self; 
     }
     return self;
 }
@@ -67,9 +69,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
             UIImage *image = [UIImage imageWithContentsOfFile:[imageView localDropboxImagePath]];
             if (image) {
                 imageView.originalImage = imageView.image;
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    imageView.image = image;
-                });
+                imageView.image = image;
             }
         }
         else {
@@ -86,7 +86,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     }
 }
 
-- (UIView *)detailForViewController:(UIViewController *)viewController
+- (UIView *)detailForViewController:(AGImageDetailViewController *)viewController
                       withImageView:(UIImageView *)imageView
                          withIssues:(AGImageCheckerIssue)issues {
     AGImageCheckerDropboxView *detailView = [[AGImageCheckerDropboxView alloc] initWithImageView:imageView
@@ -101,6 +101,16 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     detailView.removeHandler = ^(UIImageView *imageView) {
         [self removeFromLocalStorage:imageView];
     };
+    detailView.loginHandler = ^{
+        [self loginToDropbox];
+    };
+    detailView.logoutHandler = ^{
+        [self logoutFromDropbox];
+    };
+    
+    [detailView updateStatusWithLogin:[[DBSession sharedSession] isLinked]];
+    
+    self.targetImageView = imageView;
     self.detailController = viewController;
     return detailView;
 }
@@ -108,46 +118,53 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 
 #pragma mark DropBox Sync
 
-- (void)uploadToDropbox:(UIImageView *)imageView {    
-    if (![[DBSession sharedSession] isLinked]) {
-        [[DBSession sharedSession] linkFromController:detailController];
-    }
-    else {
-        NSString *remotePath = [imageView dropboxImagePath];
-        if (remotePath) {
-            UIImageView *renderedImageView = [[UIImageView alloc] initWithFrame:imageView.bounds];
-            renderedImageView.image = imageView.image;
-            renderedImageView.contentMode = imageView.contentMode;
-            renderedImageView.clipsToBounds = YES;
-
-            UIImage *image = [self imageWithView:renderedImageView];
-            NSString *tempImagePath = [self saveImageIntoTemporaryLocation:image];            
-            NSString *destDir = @"/";
-            [dbClient uploadFile:remotePath toPath:destDir
-                   withParentRev:nil fromPath:tempImagePath];
-        }
-    }
+- (void)uploadToDropbox:(UIImageView *)imageView {
+    NSString *remotePath = [imageView dropboxImagePath];
+    if (remotePath) {
+        UIImageView *renderedImageView = [[UIImageView alloc] initWithFrame:imageView.bounds];
+        renderedImageView.image = imageView.image;
+        renderedImageView.contentMode = imageView.contentMode;
+        renderedImageView.clipsToBounds = YES;
+        
+        UIImage *image = [self imageWithView:renderedImageView];
+        NSString *tempImagePath = [self saveImageIntoTemporaryLocation:image];
+        NSString *destDir = @"/";
+        [self.dbClient uploadFile:remotePath toPath:destDir
+                    withParentRev:nil fromPath:tempImagePath];
+    }    
 }
 
-- (void)downloadFromDropbox:(UIImageView *)imageView {    
-    if (![[DBSession sharedSession] isLinked]) {
-        [[DBSession sharedSession] linkFromController:detailController];
-    }
-    else {
-        NSString *remotePath = [imageView dropboxImagePath];
-        if (remotePath) {
-            remotePath = [NSString stringWithFormat:@"/%@", remotePath];
-            NSString *localPath = [imageView localDropboxImagePath];
-            NSString *directory = [localPath stringByDeletingLastPathComponent];
-            [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
-            [dbClient loadFile:remotePath intoPath:localPath];
-        }
-    }
+- (void)downloadFromDropbox:(UIImageView *)imageView {
+    NSString *remotePath = [imageView dropboxImagePath];
+    if (remotePath) {
+        [detailController.indicator startAnimating];
+        detailController.view.userInteractionEnabled = NO;
+        remotePath = [NSString stringWithFormat:@"/%@", remotePath];
+        NSString *localPath = [imageView localDropboxImagePath];
+        NSString *directory = [localPath stringByDeletingLastPathComponent];
+        [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
+        [self.dbClient loadFile:remotePath intoPath:localPath];
+    }    
 }
 
-- (void)removeFromLocalStorage:(UIImageView *)imageView {    
+- (void)removeFromLocalStorage:(UIImageView *)imageView {
     NSString *localImagePath = [imageView localDropboxImagePath];
     [[NSFileManager defaultManager] removeItemAtPath:localImagePath error:nil];
+    [self didFinishCalculatingIssues:imageView];
+    [detailController refreshContentView];
+}
+
+- (void)loginToDropbox {
+    if (![[DBSession sharedSession] isLinked]) {
+        [[DBSession sharedSession] linkFromController:detailController];
+    }
+}
+
+- (void)logoutFromDropbox {
+    [[DBSession sharedSession] unlinkAll];
+    dbClient.delegate = nil;
+    dbClient = nil;
+    [detailController refreshContentView];
 }
 
 #pragma mark Image Utils
@@ -166,5 +183,31 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     [binaryImageData writeToFile:randomPath atomically:YES];
     return randomPath;
 }
+
+#pragma mark Properties
+
+- (DBRestClient *)dbClient {
+    if (!dbClient) {
+        dbClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
+        dbClient.delegate = self;
+    }
+    return dbClient;
+}
+
+#pragma mark DBRestClientDelegate
+
+- (void)restClient:(DBRestClient*)client loadedFile:(NSString*)destPath {
+    [self didFinishCalculatingIssues:targetImageView];
+    [detailController refreshContentView];
+    [detailController.indicator stopAnimating];
+    detailController.view.userInteractionEnabled = YES;
+}
+
+- (void)restClient:(DBRestClient*)client loadFileFailedWithError:(NSError*)error {
+    [detailController.indicator stopAnimating];
+    detailController.view.userInteractionEnabled = YES;
+}
+
+
 
 @end

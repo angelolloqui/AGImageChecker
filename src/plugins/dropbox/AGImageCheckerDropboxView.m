@@ -8,6 +8,7 @@
 
 #import "AGImageCheckerDropboxView.h"
 #import "UIImageView+AGImageCheckerDropbox.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface AGImageCheckerDropboxView ()
 
@@ -21,51 +22,64 @@
 @synthesize uploadHandler;
 @synthesize downloadHandler;
 @synthesize removeHandler;
+@synthesize loginHandler;
+@synthesize logoutHandler;
 @synthesize uploadButton;
 @synthesize downloadButton;
 @synthesize removeButton;
+@synthesize logoutButton;
+@synthesize loginButton;
 @synthesize imageView;
 
 - (id)initWithImageView:(UIImageView *)targetImageView andIssues:(AGImageCheckerIssue)targetIssues andWidth:(CGFloat)width {
-    self = [super initWithFrame:CGRectMake(0, 0, width, 80)];
+    self = [super initWithFrame:CGRectMake(0, 0, width, 130)];
     
     if (self) {
         self.imageView = targetImageView;
+        UIColor *color = [UIColor colorWithRed:15/255.0f green:102/255.0f blue:162/255.0f alpha:1];
+        UIColor *redColor = [UIColor colorWithRed:126/255.0f green:0/255.0f blue:6/255.0f alpha:1];
+        UIColor *grayColor = [UIColor colorWithRed:60/255.0f green:60/255.0f blue:60/255.0f alpha:1];
         
-        uploadButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        uploadButton.frame = CGRectMake(10, 5, 250, 30);
-        [uploadButton setTitle:@"Upload To Dropbox" forState:UIControlStateNormal];
+        loginButton = [self buttonWithFrame:CGRectMake(10, 5, 180, 30) title:@"Login To Dropbox" andColor:color];
+        [loginButton addTarget:self action:@selector(loginToDropbox) forControlEvents:UIControlEventTouchUpInside];
+
+        uploadButton = [self buttonWithFrame:CGRectMake(10, 5, 180, 30) title:@"Upload To Dropbox" andColor:color];
         [uploadButton addTarget:self action:@selector(uploadToDropbox) forControlEvents:UIControlEventTouchUpInside];
-        [uploadButton setTitleColor:[UIColor colorWithWhite:0.8 alpha:1] forState:UIControlStateDisabled];
-        [self addSubview:uploadButton];
         
-        downloadButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        downloadButton.frame = CGRectMake(10, 40, 250, 30);
-        [downloadButton setTitle:@"Download From Dropbox" forState:UIControlStateNormal];
+        downloadButton = [self buttonWithFrame:CGRectMake(10, 44, 180, 30) title:@"Download From Dropbox" andColor:color];
         [downloadButton addTarget:self action:@selector(downloadFromDropbox) forControlEvents:UIControlEventTouchUpInside];
-        [downloadButton setTitleColor:[UIColor colorWithWhite:0.8 alpha:1] forState:UIControlStateDisabled];
-        [self addSubview:downloadButton];
         
-        removeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        removeButton.frame = CGRectMake(10, 40, 250, 30);
-        [removeButton setTitle:@"Remove from app" forState:UIControlStateNormal];
+        removeButton = [self buttonWithFrame:CGRectMake(10, 44, 180, 30) title:@"Remove image from app" andColor:redColor];
         [removeButton addTarget:self action:@selector(removeFromLocalFolder) forControlEvents:UIControlEventTouchUpInside];
-        [removeButton setTitleColor:[UIColor colorWithWhite:0.8 alpha:1] forState:UIControlStateDisabled];
-        [self addSubview:removeButton];
         
-        downloadButton.hidden = [imageView localDropboxImageExists];
-        removeButton.hidden = !downloadButton.hidden;
+        logoutButton = [self buttonWithFrame:CGRectMake(10, 90, 180, 30) title:@"Logout from Dropbox" andColor:grayColor];
+        [logoutButton addTarget:self action:@selector(logoutFromDropbox) forControlEvents:UIControlEventTouchUpInside];
         
         if (![imageView dropboxImagePath]) {
             uploadButton.enabled = NO;
             downloadButton.enabled = NO;
             removeButton.enabled = NO;
-        }
+        }        
     }
     
     return self;
 }
 
+- (UIButton *)buttonWithFrame:(CGRect)frame title:(NSString *)title andColor:(UIColor *)color {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = frame;
+    [button setTitle:title forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor colorWithWhite:0.85 alpha:1] forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor colorWithWhite:0.5 alpha:1] forState:UIControlStateDisabled];
+    [button.titleLabel setFont:[UIFont boldSystemFontOfSize:14]];
+    [button.titleLabel setShadowColor:[UIColor lightGrayColor]];
+    [button.titleLabel setShadowOffset:CGSizeMake(0, 1)];
+    button.layer.cornerRadius = 4.0f;
+    button.layer.masksToBounds = YES;
+    button.layer.backgroundColor = [color CGColor];
+    [self addSubview:button];
+    return button;
+}
 
 - (void)uploadToDropbox {
     if (uploadHandler) {
@@ -85,6 +99,24 @@
     }
 }
 
+- (void)loginToDropbox {
+    if (loginHandler) {
+        loginHandler();
+    }
+}
 
+- (void)logoutFromDropbox {
+    if (logoutHandler) {
+        logoutHandler();
+    }
+}
+
+- (void)updateStatusWithLogin:(BOOL)logged {
+    removeButton.hidden = ![imageView localDropboxImageExists];
+    loginButton.hidden = logged;
+    logoutButton.hidden = !logged;
+    uploadButton.hidden = !logged;
+    downloadButton.hidden = !removeButton.hidden || !logged;
+}
 
 @end

@@ -15,10 +15,15 @@
 @property (nonatomic, copy) AGImageViewHandler uploadHandler;
 @property (nonatomic, copy) AGImageViewHandler downloadHandler;
 @property (nonatomic, copy) AGImageViewHandler removeHandler;
+@property (nonatomic, copy) dispatch_block_t loginHandler;
+@property (nonatomic, copy) dispatch_block_t logoutHandler;
 @property (readonly, strong) UIButton *uploadButton;
 @property (readonly, strong) UIButton *downloadButton;
 @property (readonly, strong) UIButton *removeButton;
+@property (readonly, strong) UIButton *loginButton;
+@property (readonly, strong) UIButton *logoutButton;
 
 - (id)initWithImageView:(UIImageView *)targetImageView andIssues:(AGImageCheckerIssue)targetIssues andWidth:(CGFloat)width;
+- (void)updateStatusWithLogin:(BOOL)logged;
 
 @end

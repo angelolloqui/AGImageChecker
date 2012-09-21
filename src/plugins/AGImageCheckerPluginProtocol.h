@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "UIImageView+AGImageChecker.h"
+@class AGImageDetailViewController;
 
 @protocol AGImageCheckerPluginProtocol <NSObject>
 
@@ -20,7 +21,7 @@
 - (void)didFinishCalculatingIssues:(UIImageView *)imageView;
 
 // Returns a view for the detail popover with the plugin options
-- (UIView *)detailForViewController:(UIViewController *)viewController withImageView:(UIImageView *)imageView withIssues:(AGImageCheckerIssue)issues;
+- (UIView *)detailForViewController:(AGImageDetailViewController *)viewController withImageView:(UIImageView *)imageView withIssues:(AGImageCheckerIssue)issues;
 
 
 @end

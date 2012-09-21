@@ -12,7 +12,10 @@
 
 @property (readonly, strong) UIScrollView *contentScrollView;
 @property (readonly, strong) UIImageView *targetImageView;
+@property (readonly, strong) UIActivityIndicatorView *indicator;
 
 + (AGImageDetailViewController *)presentModalForImageView:(UIImageView *)imageView inViewController:(UIViewController *)viewController;
+
+- (void)refreshContentView;
 
 @end
