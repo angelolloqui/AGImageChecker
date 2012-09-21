@@ -32,7 +32,7 @@
 @synthesize imageView;
 
 - (id)initWithImageView:(UIImageView *)targetImageView andIssues:(AGImageCheckerIssue)targetIssues andWidth:(CGFloat)width {
-    self = [super initWithFrame:CGRectMake(0, 0, width, 130)];
+    self = [super initWithFrame:CGRectMake(0, 0, width, 140)];
     
     if (self) {
         self.imageView = targetImageView;
@@ -40,19 +40,19 @@
         UIColor *redColor = [UIColor colorWithRed:126/255.0f green:0/255.0f blue:6/255.0f alpha:1];
         UIColor *grayColor = [UIColor colorWithRed:60/255.0f green:60/255.0f blue:60/255.0f alpha:1];
         
-        loginButton = [self buttonWithFrame:CGRectMake(10, 5, 180, 30) title:@"Login To Dropbox" andColor:color];
+        loginButton = [self buttonWithFrame:CGRectMake(10, 5, 200, 30) title:@"Login To Dropbox" andColor:color];
         [loginButton addTarget:self action:@selector(loginToDropbox) forControlEvents:UIControlEventTouchUpInside];
 
-        uploadButton = [self buttonWithFrame:CGRectMake(10, 5, 180, 30) title:@"Upload To Dropbox" andColor:color];
+        uploadButton = [self buttonWithFrame:CGRectMake(10, 5, 200, 30) title:@"Upload To Dropbox" andColor:color];
         [uploadButton addTarget:self action:@selector(uploadToDropbox) forControlEvents:UIControlEventTouchUpInside];
         
-        downloadButton = [self buttonWithFrame:CGRectMake(10, 44, 180, 30) title:@"Download From Dropbox" andColor:color];
+        downloadButton = [self buttonWithFrame:CGRectMake(10, 44, 200, 30) title:@"Download From Dropbox" andColor:color];
         [downloadButton addTarget:self action:@selector(downloadFromDropbox) forControlEvents:UIControlEventTouchUpInside];
         
-        removeButton = [self buttonWithFrame:CGRectMake(10, 44, 180, 30) title:@"Remove image from app" andColor:redColor];
+        removeButton = [self buttonWithFrame:CGRectMake(10, 44, 200, 30) title:@"Remove DB image from app" andColor:redColor];
         [removeButton addTarget:self action:@selector(removeFromLocalFolder) forControlEvents:UIControlEventTouchUpInside];
         
-        logoutButton = [self buttonWithFrame:CGRectMake(10, 90, 180, 30) title:@"Logout from Dropbox" andColor:grayColor];
+        logoutButton = [self buttonWithFrame:CGRectMake(10, 92, 200, 30) title:@"Logout from Dropbox" andColor:grayColor];
         [logoutButton addTarget:self action:@selector(logoutFromDropbox) forControlEvents:UIControlEventTouchUpInside];
         
         if (![imageView dropboxImagePath]) {
@@ -70,11 +70,12 @@
     button.frame = frame;
     [button setTitle:title forState:UIControlStateNormal];
     [button setTitleColor:[UIColor colorWithWhite:0.85 alpha:1] forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor colorWithWhite:0.5 alpha:1] forState:UIControlStateHighlighted];
     [button setTitleColor:[UIColor colorWithWhite:0.5 alpha:1] forState:UIControlStateDisabled];
     [button.titleLabel setFont:[UIFont boldSystemFontOfSize:14]];
     [button.titleLabel setShadowColor:[UIColor lightGrayColor]];
     [button.titleLabel setShadowOffset:CGSizeMake(0, 1)];
-    button.layer.cornerRadius = 4.0f;
+    button.layer.cornerRadius = 5.0f;
     button.layer.masksToBounds = YES;
     button.layer.backgroundColor = [color CGColor];
     [self addSubview:button];

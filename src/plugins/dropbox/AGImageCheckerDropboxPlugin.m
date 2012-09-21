@@ -121,6 +121,9 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 - (void)uploadToDropbox:(UIImageView *)imageView {
     NSString *remotePath = [imageView dropboxImagePath];
     if (remotePath) {
+        [detailController.indicator startAnimating];
+        detailController.view.userInteractionEnabled = NO;
+
         UIImageView *renderedImageView = [[UIImageView alloc] initWithFrame:imageView.bounds];
         renderedImageView.image = imageView.image;
         renderedImageView.contentMode = imageView.contentMode;
@@ -208,6 +211,16 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     detailController.view.userInteractionEnabled = YES;
 }
 
+- (void)restClient:(DBRestClient*)client uploadedFile:(NSString*)destPath from:(NSString*)srcPath
+          metadata:(DBMetadata*)metadata {
+    [detailController.indicator stopAnimating];
+    detailController.view.userInteractionEnabled = YES;
+}
+
+- (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error {
+    [detailController.indicator stopAnimating];
+    detailController.view.userInteractionEnabled = YES;
+}
 
 
 @end
