@@ -8,6 +8,14 @@
 #import <Foundation/Foundation.h>
 #import "AGImageCheckerPluginProtocol.h"
 
+#ifndef AGIMAGECHECKER
+#ifdef DEBUG
+#define AGIMAGECHECKER 1
+#else
+#define AGIMAGECHECKER 0
+#endif
+#endif
+
 @interface AGImageChecker : NSObject
 
 @property(readonly) BOOL running;

@@ -7,6 +7,7 @@
 //
 
 #import "UIImage+AGImageChecker.h"
+#import "AGImageChecker.h"
 #import <objc/runtime.h>
 
 @implementation UIImage (AGImageChecker)
@@ -52,7 +53,7 @@ static BOOL methodsAlreadySwizzled = NO;
 #pragma mark Swizzling methods
 
 + (void)swizzle {
-#ifdef DEBUG
+#if AGIMAGECHECKER
     //Swizzle the original imageNamed method to add our own calls
     Method imagedNamedOriginal = class_getClassMethod(self, @selector(imageNamed:));
     Method imagedNamedCustom = class_getClassMethod(self, @selector(imageNamedCustom:));

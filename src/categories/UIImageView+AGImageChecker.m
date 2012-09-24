@@ -6,6 +6,7 @@
 //
 
 #import "UIImageView+AGImageChecker.h"
+#import "AGImageChecker.h"
 #import <objc/runtime.h>
 
 @implementation UIImageView (AGImageChecker)
@@ -42,7 +43,7 @@ static AGImageViewHandler sCheckHandler = nil;
 #pragma mark Swizzling methods
 
 + (void)swizzle {
-#ifdef DEBUG
+#if AGIMAGECHECKER
     //Swizzle the original setImage method to add our own calls
     Method setImageOriginal = class_getInstanceMethod(self, @selector(setImage:));
     Method setImageCustom = class_getInstanceMethod(self, @selector(setImageCustom:));

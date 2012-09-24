@@ -27,7 +27,7 @@
 static AGImageChecker *sharedInstance = nil;
 + (AGImageChecker *)sharedInstance
 {
-#ifdef DEBUG
+#if AGIMAGECHECKER
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[self alloc] init];
