@@ -10,6 +10,7 @@
 #import "UIImage+AGImageChecker.h"
 #import "AGImageDetailViewController.h"
 #import "AGImageCheckerBasePlugin.h"
+#import <dlfcn.h>
 
 @interface AGImageChecker()
 @property(readwrite) BOOL running;
@@ -23,6 +24,31 @@
 @synthesize plugins;
 
 #pragma mark Life cycle
+
++ (void)load {
+#if AGIMAGECHECKER
+    NSString *appSupportLocation = @"/System/Library/PrivateFrameworks/AppSupport.framework/AppSupport";
+    
+    NSDictionary *environment = [[NSProcessInfo processInfo] environment];
+    NSString *simulatorRoot = [environment objectForKey:@"IPHONE_SIMULATOR_ROOT"];
+    if (simulatorRoot) {
+        appSupportLocation = [simulatorRoot stringByAppendingString:appSupportLocation];
+    }
+    
+    void *appSupportLibrary = dlopen([appSupportLocation fileSystemRepresentation], RTLD_LAZY);
+    
+    CFStringRef (*copySharedResourcesPreferencesDomainForDomain)(CFStringRef domain) = dlsym(appSupportLibrary, "CPCopySharedResourcesPreferencesDomainForDomain");
+    
+    if (copySharedResourcesPreferencesDomainForDomain) {
+        CFStringRef accessibilityDomain = copySharedResourcesPreferencesDomainForDomain(CFSTR("com.apple.Accessibility"));
+        
+        if (accessibilityDomain) {
+            CFPreferencesSetValue(CFSTR("ApplicationAccessibilityEnabled"), kCFBooleanTrue, accessibilityDomain, kCFPreferencesAnyUser, kCFPreferencesAnyHost);
+            CFRelease(accessibilityDomain);
+        }
+    }
+#endif
+}
 
 static AGImageChecker *sharedInstance = nil;
 + (AGImageChecker *)sharedInstance
