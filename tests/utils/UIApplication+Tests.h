@@ -12,4 +12,6 @@
 
 + (void) resetApplication;
 
++ (id) mockWindow;
+
 @end

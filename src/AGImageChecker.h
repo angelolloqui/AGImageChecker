@@ -24,6 +24,7 @@
 @property(readonly, strong) NSArray *plugins;
 
 + (AGImageChecker *)sharedInstance;
++ (void)setSharedInstance:(AGImageChecker *)instance;
 - (void)start;
 - (void)stop;
 - (void)openImageDetail:(UIImageView *)imageView;

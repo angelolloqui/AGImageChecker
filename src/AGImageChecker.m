@@ -61,6 +61,11 @@ static AGImageChecker *sharedInstance = nil;
 #endif
 	return sharedInstance;
 }
++ (void)setSharedInstance:(AGImageChecker *)instance {
+#if AGIMAGECHECKER
+        sharedInstance = instance;
+#endif    
+}
 
 - (id)init {
     self = [super init];
@@ -86,8 +91,8 @@ static AGImageChecker *sharedInstance = nil;
             [blockSelf checkIssues:imageView];
         }];
         [UIImage startSavingNames];
-        [self.rootViewController.view addGestureRecognizer:tapGesture];
-        NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
+        [self.rootWindow addGestureRecognizer:tapGesture];
+        NSArray *loadedImageViews = [self imageViewsInto:self.rootWindow];
         for (UIImageView *imageView in loadedImageViews) {
             [self checkIssues:imageView];
         }
@@ -101,12 +106,29 @@ static AGImageChecker *sharedInstance = nil;
         [UIImageView setImageIssuesHandler:nil];
         [UIImageView setImageCheckHandler:nil];
         [UIImage stopSavingNames];
-        [self.rootViewController.view removeGestureRecognizer:tapGesture];
-        NSArray *loadedImageViews = [self imageViewsInto:self.rootViewController.view];
+        [tapGesture.view removeGestureRecognizer:tapGesture];
+        NSArray *loadedImageViews = [self imageViewsInto:self.rootWindow];
         for (UIImageView *imageView in loadedImageViews) {
             imageView.issues = AGImageCheckerIssueNone;
         }
     }
+}
+
+- (void)setRootViewController:(UIViewController *)viewController {
+    if (rootViewController == viewController) return;
+    [self willChangeValueForKey:@"rootViewController"];
+    BOOL run = self.running;
+    if (run) {
+        [self stop];
+    }
+    rootViewController = viewController;
+    if (run) {
+        [self start];
+    }
+    if (rootViewController) {
+        NSAssert(self.rootWindow, @"The view controller must be added to the window before setting it to as the AGImageChecker root controller");
+    }
+    [self didChangeValueForKey:@"rootViewController"];
 }
 
 - (UIViewController *)rootViewController {
@@ -114,6 +136,14 @@ static AGImageChecker *sharedInstance = nil;
         return [[[UIApplication sharedApplication] keyWindow] rootViewController];
     }
     return rootViewController;
+}
+
+- (UIWindow *)rootWindow {
+    for (UIWindow *wnd in [[UIApplication sharedApplication] windows]) {
+        if ([self.rootViewController.view isDescendantOfView:wnd])
+            return wnd;
+    }
+    return nil;
 }
 
 - (void)addPlugin:(id<AGImageCheckerPluginProtocol>)plugin {
@@ -149,17 +179,22 @@ static AGImageChecker *sharedInstance = nil;
 #pragma mark Handling interaction
 
 - (void)tapOnWindow {
-    UIView *rootView = self.rootViewController.view;
-    CGPoint location = [self.tapGesture locationInView:rootView];
+    if (self.tapGesture.state == UIGestureRecognizerStateEnded) {
+        UIView *touchView = self.tapGesture.view;
+        CGPoint location = [self.tapGesture locationInView:touchView];
         
-    UIImageView *imageView = [self imageViewAtPosition:location inView:rootView];    
-    if (imageView) {
-        [self openImageDetail:imageView];
+        UIImageView *imageView = [self imageViewAtPosition:location inView:touchView];
+        if (imageView) {
+            [self openImageDetail:imageView];
+        }
     }
 }
 
 - (void)openImageDetail:(UIImageView *)imageView {
-    [AGImageDetailViewController presentModalForImageView:imageView inViewController:self.rootViewController];
+    UIViewController *viewController = self.rootViewController;
+    if (viewController.presentedViewController)
+        viewController = viewController.presentedViewController;
+    [AGImageDetailViewController presentModalForImageView:imageView inViewController:viewController];
 }
 
 

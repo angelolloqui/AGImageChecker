@@ -23,22 +23,30 @@
 @synthesize imageChecker;
 @synthesize imageView;
 
+static AGImageChecker *originalInstance = nil;
+
 - (void)setUp {
+    originalInstance = [AGImageChecker sharedInstance];
     imageChecker = [[AGImageChecker alloc] init];
+    [AGImageChecker setSharedInstance:imageChecker];
+    
     rootViewController = [[UIViewController alloc] init];    
     [rootViewController setView:[[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)]];
     
     mockRootView = [OCMockObject niceMockForClass:[UIView class]];
     mockRootViewController = [OCMockObject niceMockForClass:[UIViewController class]];
     [[[mockRootViewController stub] andReturn:mockRootView] view];
+
+    [[[[UIApplication sharedApplication] windows] objectAtIndex:0] addSubview:rootViewController.view];
     
     imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-    [imageChecker setRootViewController:rootViewController];
+    [imageChecker setRootViewController:rootViewController];    
 }
 
 - (void) tearDown {
     [UIApplication resetApplication];
     [imageChecker stop];
+    [AGImageChecker setSharedInstance:originalInstance];
 }
 
 - (void)testImageCheckerIsInstanciated {
@@ -46,7 +54,7 @@
 }
 
 - (void)testImageCheckerIsSingleton {
-    STAssertEquals(imageChecker, imageChecker, @"Can not instanciate the AGImageChecker");
+    STAssertEquals(imageChecker, [AGImageChecker sharedInstance], @"Can not instanciate the AGImageChecker");
 }
 
 - (void)testImageCheckerCanStartMonitoring {
@@ -67,6 +75,7 @@
 
 - (void)testImageCheckerCanAssignRootViewController {
     UIViewController *vc = [[UIViewController alloc] init];
+    [[[[UIApplication sharedApplication] windows] objectAtIndex:0] addSubview:vc.view];
     STAssertNoThrow([imageChecker setRootViewController:vc], @"Can not set the rootViewController for the AGImageChecker");
     STAssertEquals([imageChecker rootViewController], vc, @"RootViewController not correctly assigned in AGImageChecker");
 }
@@ -74,9 +83,23 @@
 - (void)testImageCheckerAutoAssignRootViewControllerOfTheApp {   
     STAssertNoThrow([imageChecker setRootViewController:nil], @"Can not set the rootViewController for the AGImageChecker");
     UIViewController *vc = [[UIViewController alloc] init];
-    id keyWindow = [[UIApplication sharedApplication] keyWindow];
+    id keyWindow = [UIApplication mockWindow];
     [[[keyWindow stub] andReturn:vc] rootViewController];
+    [[[(id)[UIApplication sharedApplication] stub] andReturn:keyWindow] keyWindow];
     STAssertEquals([imageChecker rootViewController], vc, @"RootViewController should come from the Window root view controller if none set in AGImageChecker");
+}
+
+- (void)testImageCheckerStopsAndStartsWhenChangingRootViewController {
+    id mockImageChecker = [OCMockObject partialMockForObject:imageChecker];
+    [mockImageChecker setRootViewController:mockRootViewController];
+    [(AGImageChecker *)mockImageChecker start];
+    UIViewController *vc = [[UIViewController alloc] init];
+    
+    [[mockImageChecker expect] stop];
+    [(AGImageChecker *)[mockImageChecker expect] start];
+    [mockImageChecker setRootViewController:vc];
+    [mockImageChecker verify];
+    [mockImageChecker stop];
 }
 
 - (void)testImageCheckerInstantiatesBasePlugin {
@@ -122,14 +145,14 @@
 }
 
 - (void)testImageCheckerCorrectlySetGesturesInWindow {
+    id mockWindow = [UIApplication mockWindow];
+    BOOL descendent = YES;
+    [[[mockRootView stub] andReturnValue:OCMOCK_VALUE(descendent)] isDescendantOfView:mockWindow];
     [imageChecker setRootViewController:mockRootViewController];
-    [[mockRootView expect] addGestureRecognizer:imageChecker.tapGesture];
-    [imageChecker start];
-    [mockRootView verify];
     
-    [[mockRootView expect] removeGestureRecognizer:imageChecker.tapGesture];
-    [imageChecker stop];    
-    [mockRootView verify];    
+    [[mockWindow expect] addGestureRecognizer:imageChecker.tapGesture];
+    [imageChecker start];
+    [mockWindow verify];
 }
 
 - (void)testImageCheckerInteractsWithTheCorrectImage {     
@@ -137,7 +160,10 @@
     
     //Mock objects
     id mockGesture = [OCMockObject mockForClass:[UITapGestureRecognizer class]];
+    UIGestureRecognizerState state = UIGestureRecognizerStateEnded;
+    [[[mockGesture stub] andReturnValue:OCMOCK_VALUE(state)] state];
     [[[mockGesture stub] andReturnValue:[NSValue valueWithCGPoint:point]] locationInView:rootViewController.view];
+    [[[mockGesture stub] andReturn:rootViewController.view] view];
     id mockImageChecker = [OCMockObject partialMockForObject:imageChecker];
     [[[mockImageChecker stub] andReturn:mockGesture] tapGesture];
     
@@ -166,6 +192,7 @@
 
 - (void)testImageCheckerStopsWhenOpeningDetailController {   
     [[AGImageChecker sharedInstance] start];
+    [imageChecker removePlugin:[imageChecker.plugins lastObject]];
     [imageChecker openImageDetail:imageView];
     STAssertFalse([imageChecker running], @"ImageChecker should stop when presenting the image details");
     [[AGImageChecker sharedInstance] stop];

@@ -11,18 +11,25 @@
 @implementation UIApplication (Tests)
 
 static id application = nil;
+static id mockWindow = nil;
+
 + (UIApplication *)sharedApplication {
     if (!application) {
         application = [OCMockObject niceMockForClass:[UIApplication class]];
-        id wnd = [OCMockObject niceMockForClass:[UIWindow class]];
+        UIWindow *wnd = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
         [wnd makeKeyWindow];
-        [[[(id) [UIApplication sharedApplication] stub] andReturn:wnd] keyWindow];    
+        mockWindow = [OCMockObject niceMockForClass:[UIWindow class]];
+        [[[(id) [UIApplication sharedApplication] stub] andReturn:[NSArray arrayWithObjects:wnd, mockWindow, nil]] windows];
     }
     return application;
 }
 
 + (void) resetApplication {
     application = nil;
+}
+
++ (id)mockWindow {
+    return mockWindow;
 }
 
 @end

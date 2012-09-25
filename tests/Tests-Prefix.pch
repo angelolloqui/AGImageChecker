@@ -8,3 +8,5 @@
     #import "OCMock.h"
     #import "UIApplication+Tests.h"
 #endif
+
+#define NSAssert(param,log) if (!param) NSLog(log)
