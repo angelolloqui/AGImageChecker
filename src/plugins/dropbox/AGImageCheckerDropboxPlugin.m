@@ -92,9 +92,13 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     AGImageCheckerDropboxView *detailView = [[AGImageCheckerDropboxView alloc] initWithImageView:imageView
                                                                                        andIssues:issues
                                                                                         andWidth:viewController.view.frame.size.width];
-    detailView.uploadHandler = ^(UIImageView *imageView) {
-        [self uploadToDropbox:imageView];
+    detailView.uploadOriginalHandler = ^(UIImageView *imageView) {
+        [self uploadToDropbox:imageView original:YES];
     };
+    detailView.uploadRenderedHandler = ^(UIImageView *imageView) {
+        [self uploadToDropbox:imageView original:NO];
+    };
+
     detailView.downloadHandler = ^(UIImageView *imageView) {
         [self downloadFromDropbox:imageView];
     };
@@ -118,18 +122,22 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 
 #pragma mark DropBox Sync
 
-- (void)uploadToDropbox:(UIImageView *)imageView {
+- (void)uploadToDropbox:(UIImageView *)imageView original:(BOOL)original {
     NSString *remotePath = [imageView dropboxImagePath];
     if (remotePath) {
         [detailController.indicator startAnimating];
         detailController.view.userInteractionEnabled = NO;
-
-        UIImageView *renderedImageView = [[UIImageView alloc] initWithFrame:imageView.bounds];
-        renderedImageView.image = imageView.image;
-        renderedImageView.contentMode = imageView.contentMode;
-        renderedImageView.clipsToBounds = YES;
-        
-        UIImage *image = [self imageWithView:renderedImageView];
+        UIImage *image = nil;
+        if (original) {
+            image = imageView.image;
+        }
+        else {
+            UIImageView *renderedImageView = [[UIImageView alloc] initWithFrame:imageView.bounds];
+            renderedImageView.image = imageView.image;
+            renderedImageView.contentMode = imageView.contentMode;
+            renderedImageView.clipsToBounds = YES;
+            image = [self imageWithView:renderedImageView];            
+        }
         NSString *tempImagePath = [self saveImageIntoTemporaryLocation:image];
         NSString *destDir = @"/";
         [self.dbClient uploadFile:remotePath toPath:destDir

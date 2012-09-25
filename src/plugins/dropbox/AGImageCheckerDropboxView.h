@@ -12,12 +12,14 @@
 
 @interface AGImageCheckerDropboxView : UIView
 
-@property (nonatomic, copy) AGImageViewHandler uploadHandler;
+@property (nonatomic, copy) AGImageViewHandler uploadOriginalHandler;
+@property (nonatomic, copy) AGImageViewHandler uploadRenderedHandler;
 @property (nonatomic, copy) AGImageViewHandler downloadHandler;
 @property (nonatomic, copy) AGImageViewHandler removeHandler;
 @property (nonatomic, copy) dispatch_block_t loginHandler;
 @property (nonatomic, copy) dispatch_block_t logoutHandler;
-@property (readonly, strong) UIButton *uploadButton;
+@property (readonly, strong) UIButton *uploadOriginalButton;
+@property (readonly, strong) UIButton *uploadRenderButton;
 @property (readonly, strong) UIButton *downloadButton;
 @property (readonly, strong) UIButton *removeButton;
 @property (readonly, strong) UIButton *loginButton;

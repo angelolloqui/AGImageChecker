@@ -19,12 +19,14 @@
 
 @implementation AGImageCheckerDropboxView
 
-@synthesize uploadHandler;
+@synthesize uploadOriginalHandler;
+@synthesize uploadRenderedHandler;
 @synthesize downloadHandler;
 @synthesize removeHandler;
 @synthesize loginHandler;
 @synthesize logoutHandler;
-@synthesize uploadButton;
+@synthesize uploadOriginalButton;
+@synthesize uploadRenderButton;
 @synthesize downloadButton;
 @synthesize removeButton;
 @synthesize logoutButton;
@@ -32,7 +34,7 @@
 @synthesize imageView;
 
 - (id)initWithImageView:(UIImageView *)targetImageView andIssues:(AGImageCheckerIssue)targetIssues andWidth:(CGFloat)width {
-    self = [super initWithFrame:CGRectMake(0, 0, width, 140)];
+    self = [super initWithFrame:CGRectMake(0, 0, width, 180)];
     
     if (self) {
         self.imageView = targetImageView;
@@ -43,20 +45,24 @@
         loginButton = [self buttonWithFrame:CGRectMake(10, 5, 200, 30) title:@"Login To Dropbox" andColor:color];
         [loginButton addTarget:self action:@selector(loginToDropbox) forControlEvents:UIControlEventTouchUpInside];
 
-        uploadButton = [self buttonWithFrame:CGRectMake(10, 5, 200, 30) title:@"Upload To Dropbox" andColor:color];
-        [uploadButton addTarget:self action:@selector(uploadToDropbox) forControlEvents:UIControlEventTouchUpInside];
+        uploadOriginalButton = [self buttonWithFrame:CGRectMake(10, 5, 200, 30) title:@"Upload original To Dropbox" andColor:color];
+        [uploadOriginalButton addTarget:self action:@selector(uploadOriginalToDropbox) forControlEvents:UIControlEventTouchUpInside];
         
-        downloadButton = [self buttonWithFrame:CGRectMake(10, 44, 200, 30) title:@"Download From Dropbox" andColor:color];
+        uploadRenderButton = [self buttonWithFrame:CGRectMake(10, 45, 200, 30) title:@"Upload rendered To Dropbox" andColor:color];
+        [uploadRenderButton addTarget:self action:@selector(uploadRenderToDropbox) forControlEvents:UIControlEventTouchUpInside];
+        
+        downloadButton = [self buttonWithFrame:CGRectMake(10, 85, 200, 30) title:@"Download From Dropbox" andColor:color];
         [downloadButton addTarget:self action:@selector(downloadFromDropbox) forControlEvents:UIControlEventTouchUpInside];
         
-        removeButton = [self buttonWithFrame:CGRectMake(10, 44, 200, 30) title:@"Remove DB image from app" andColor:redColor];
+        removeButton = [self buttonWithFrame:CGRectMake(10, 85, 200, 30) title:@"Remove DB image from app" andColor:redColor];
         [removeButton addTarget:self action:@selector(removeFromLocalFolder) forControlEvents:UIControlEventTouchUpInside];
         
-        logoutButton = [self buttonWithFrame:CGRectMake(10, 92, 200, 30) title:@"Logout from Dropbox" andColor:grayColor];
+        logoutButton = [self buttonWithFrame:CGRectMake(10, 130, 200, 30) title:@"Logout from Dropbox" andColor:grayColor];
         [logoutButton addTarget:self action:@selector(logoutFromDropbox) forControlEvents:UIControlEventTouchUpInside];
         
         if (![imageView dropboxImagePath]) {
-            uploadButton.enabled = NO;
+            uploadOriginalButton.enabled = NO;
+            uploadRenderButton.enabled = NO;
             downloadButton.enabled = NO;
             removeButton.enabled = NO;
         }        
@@ -82,9 +88,15 @@
     return button;
 }
 
-- (void)uploadToDropbox {
-    if (uploadHandler) {
-        uploadHandler(imageView);
+- (void)uploadOriginalToDropbox {
+    if (uploadOriginalHandler) {
+        uploadOriginalHandler(imageView);
+    }
+}
+
+- (void)uploadRenderToDropbox {
+    if (uploadRenderedHandler) {
+        uploadRenderedHandler(imageView);
     }
 }
 
@@ -116,7 +128,8 @@
     removeButton.hidden = ![imageView localDropboxImageExists];
     loginButton.hidden = logged;
     logoutButton.hidden = !logged;
-    uploadButton.hidden = !logged;
+    uploadOriginalButton.hidden = !logged;
+    uploadRenderButton.hidden = !logged;    
     downloadButton.hidden = !removeButton.hidden || !logged;
 }
 
