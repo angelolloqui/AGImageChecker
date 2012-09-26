@@ -54,17 +54,14 @@ static AGImageChecker *sharedInstance = nil;
 + (AGImageChecker *)sharedInstance
 {
 #if AGIMAGECHECKER
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] init];
-    });
+    if (sharedInstance == nil) {
+            sharedInstance = [[self alloc] init];
+    }
 #endif
 	return sharedInstance;
 }
 + (void)setSharedInstance:(AGImageChecker *)instance {
-#if AGIMAGECHECKER
-        sharedInstance = instance;
-#endif    
+    sharedInstance = instance;
 }
 
 - (id)init {

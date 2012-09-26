@@ -76,6 +76,7 @@ static BOOL methodsAlreadySwizzled = NO;
 #endif
 }
 
+#if AGIMAGECHECKER
 + (UIImage *)imageNamedCustom:(NSString *)name {
     UIImage *image = [self imageNamedCustom:name];
     if (image == nil) {
@@ -106,6 +107,8 @@ static BOOL methodsAlreadySwizzled = NO;
     return image;
 }
 
+#endif
+
 #pragma mark Properties
 
 static void * const kMyAssociatedNameKey = (void*)&kMyAssociatedNameKey;
@@ -114,7 +117,9 @@ static void * const kMyAssociatedNameKey = (void*)&kMyAssociatedNameKey;
 }
 
 - (void)setName:(NSString *)name {
+    [self willChangeValueForKey:@"name"];
     objc_setAssociatedObject(self, kMyAssociatedNameKey, name, OBJC_ASSOCIATION_RETAIN);
+    [self didChangeValueForKey:@"name"];
 }
 
 

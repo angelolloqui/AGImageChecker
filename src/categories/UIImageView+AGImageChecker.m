@@ -71,6 +71,7 @@ static AGImageViewHandler sCheckHandler = nil;
 #endif
 }
 
+#if AGIMAGECHECKER
 - (void)setImageCustom:(UIImage *)image {
     if ([self isKindOfClass:[UIImageView class]]) {
         UIImage *oldImage = self.image;
@@ -131,6 +132,8 @@ static AGImageViewHandler sCheckHandler = nil;
     }
 }
 
+#endif
+
 #pragma mark Properties
 
 static void * const kMyAssociatedIssuesKey = (void*)&kMyAssociatedIssuesKey; 
@@ -139,10 +142,12 @@ static void * const kMyAssociatedIssuesKey = (void*)&kMyAssociatedIssuesKey;
 }
 
 - (void)setIssues:(AGImageCheckerIssue)issues {
+    [self willChangeValueForKey:@"issues"];
     objc_setAssociatedObject(self, kMyAssociatedIssuesKey, [NSNumber numberWithInt:issues], OBJC_ASSOCIATION_RETAIN);
     if (sIssuesHandler) {
         sIssuesHandler(self);
     }
+    [self didChangeValueForKey:@"issues"];
 }
 
 @end
