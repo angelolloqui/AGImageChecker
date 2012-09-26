@@ -74,7 +74,12 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
         }
         else {
             imageView.layer.borderWidth = 1;
-            imageView.layer.borderColor = [UIColor blueColor].CGColor;
+            if (imageView.issues) {
+                imageView.layer.borderColor = [UIColor colorWithRed:0.5 green:0 blue:1 alpha:1].CGColor;
+            }
+            else {
+                imageView.layer.borderColor = [UIColor colorWithRed:0 green:0 blue:1 alpha:0.5].CGColor;
+            }
         }
     }
     else {

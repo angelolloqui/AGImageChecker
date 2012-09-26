@@ -37,7 +37,7 @@
 - (void)tearDown {
     [[AGImageChecker sharedInstance] stop];
     //Init again to recover plugins
-    [[AGImageChecker sharedInstance] init];
+    [AGImageChecker setSharedInstance:[[AGImageChecker alloc] init]];
 }
 
 - (void)testImageViewIsSetAndHaveIssues {
@@ -55,9 +55,27 @@
     
     [[AGImageChecker sharedInstance] addPlugin:plugin];
     [imageDetailVC viewDidLoad];
-    [[AGImageChecker sharedInstance] removePlugin:plugin];
     STAssertTrue(called, @"The plugin code for detail page was not called");    
 }
+
+
+- (void)testControllerCallsPluginsWhenRefreshingDetails {
+    [imageDetailVC view];
+    STAssertNotNil(imageDetailVC.view, @"The view should be already set");
+    
+    id plugin = [OCMockObject niceMockForProtocol:@protocol(AGImageCheckerPluginProtocol)];
+    __block BOOL called = NO;
+    [[[plugin stub] andDo:^(NSInvocation *inv) {
+        called = YES;
+    }] detailForViewController:imageDetailVC withImageView:imageView withIssues:AGImageCheckerIssueNone];
+    
+    [[AGImageChecker sharedInstance] addPlugin:plugin];
+    [imageDetailVC refreshContentView];
+    STAssertTrue(called, @"The plugin code for detail page was not called");
+}
+
+
+
 
 
 @end

@@ -12,6 +12,7 @@
 
 static id application = nil;
 static id mockWindow = nil;
+static id delegate = nil;
 
 + (UIApplication *)sharedApplication {
     if (!application) {
@@ -20,6 +21,9 @@ static id mockWindow = nil;
         [wnd makeKeyWindow];
         mockWindow = [OCMockObject niceMockForClass:[UIWindow class]];
         [[[(id) [UIApplication sharedApplication] stub] andReturn:[NSArray arrayWithObjects:wnd, mockWindow, nil]] windows];
+        
+        delegate = [OCMockObject niceMockForClass:[NSObject class]];
+        [[[(id) [UIApplication sharedApplication] stub] andReturn:delegate] delegate];
     }
     return application;
 }
