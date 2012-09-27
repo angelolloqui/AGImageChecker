@@ -13,6 +13,7 @@
 @interface AGDropboxPluginTests : SenTestCase
 
 @property (strong) id mockDBSession;
+@property (strong) id mockDBClient;
 @property (strong) id mockImageChecker;
 
 @property (strong) AGImageCheckerDropboxPlugin *plugin;
