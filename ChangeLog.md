@@ -1,3 +1,13 @@
+V.1.0.0 - 27/09/2012
+=======
+Official first release of the AGImageChecker library. Includes the following changes:
+- Changed precompilation flag used to AGIMAGECHECKER. It defaults to DEBUG if no defined
+- Automatic Accesibility enabled on load for both Device and Simulator
+- Refactored gestures to detect touches on window instead of root view controller
+- Added Dropbox button to upload original image
+- Small general improvements
+- Added new tests and code coverage in Test target
+- Uncrustified code
 
 V.0.0.2 - 21/09/2012
 =======
