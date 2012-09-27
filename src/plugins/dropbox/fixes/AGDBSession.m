@@ -58,18 +58,18 @@ static BOOL UIApplication_canOpenURL(id self, SEL _cmd, NSURL *url) {
         return NO;
     }
     
-    return (BOOL)UIApplication_canOpenURL_original(self, _cmd, url);
+    void *ret = (__bridge void *)UIApplication_canOpenURL_original(self, _cmd, url);
+    return (BOOL)ret;
 }
 
 static IMP UIApplicationDelegate_handleOpenURL_original;
 static BOOL UIApplicationDelegate_handleOpenURL(id self, SEL _cmd, UIApplication *application, NSURL *url, NSString *sourceApplication, id annotation) {
-    BOOL handled = NO;
+    void *ret = 0;
     
     if (UIApplicationDelegate_handleOpenURL_original) {
-        handled = (BOOL)UIApplicationDelegate_handleOpenURL_original(self, _cmd, application, url, sourceApplication, annotation);
+        ret = (__bridge void *)UIApplicationDelegate_handleOpenURL_original(self, _cmd, application, url, sourceApplication, annotation);
     }
-    
-    return [AGImageCheckerDropboxPlugin handleOpenURL:url] || handled;
+    return [AGImageCheckerDropboxPlugin handleOpenURL:url] || (BOOL) ret;
 }
 
 @end
