@@ -27,19 +27,19 @@ static AGImageChecker *originalInstance = nil;
 
 - (void)setUp {
     originalInstance = [AGImageChecker sharedInstance];
-    imageChecker = [[AGImageChecker alloc] init];
+    self.imageChecker = [[AGImageChecker alloc] init];
     [AGImageChecker setSharedInstance:imageChecker];
     
-    rootViewController = [[UIViewController alloc] init];    
+    self.rootViewController = [[UIViewController alloc] init];
     [rootViewController setView:[[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)]];
     
-    mockRootView = [OCMockObject niceMockForClass:[UIView class]];
-    mockRootViewController = [OCMockObject niceMockForClass:[UIViewController class]];
+    self.mockRootView = [OCMockObject niceMockForClass:[UIView class]];
+    self.mockRootViewController = [OCMockObject niceMockForClass:[UIViewController class]];
     [[[mockRootViewController stub] andReturn:mockRootView] view];
 
     [[[[UIApplication sharedApplication] windows] objectAtIndex:0] addSubview:rootViewController.view];
     
-    imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+    self.imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
     [imageChecker setRootViewController:rootViewController];    
 }
 

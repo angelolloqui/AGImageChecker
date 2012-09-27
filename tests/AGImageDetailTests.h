@@ -15,6 +15,6 @@
 @property (strong) UIImageView *imageView;
 @property (strong) UIImage *image;
 @property (strong) UIViewController *viewController;
-@property (strong) NSArray *initialPlugins;
+@property (strong) id mockImageChecker;
 
 @end

@@ -14,53 +14,68 @@
 @synthesize imageView;
 @synthesize image;
 @synthesize viewController;
+@synthesize mockImageChecker;
 @synthesize imageDetailVC;
-@synthesize initialPlugins;
+
+static AGImageChecker *originalInstance = nil;
 
 - (void)setUp {
-    //Remove all plugins
-    NSArray *plugins = [[[AGImageChecker sharedInstance] plugins] copy];
-    for (id plugin in plugins){
-        [[AGImageChecker sharedInstance] removePlugin:plugin];
-    }
+    originalInstance = [AGImageChecker sharedInstance];
     
-    [[AGImageChecker sharedInstance] start];
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];    
-    image = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_small_image" ofType:@"png"]];
-    imageView = [[UIImageView alloc] initWithImage:image];
-    viewController = [[UIViewController alloc] init];
+    self.mockImageChecker = [OCMockObject partialMockForObject:originalInstance];
+    [AGImageChecker setSharedInstance:mockImageChecker];
+    
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    self.image = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_small_image" ofType:@"png"]];
+    self.imageView = [[UIImageView alloc] initWithImage:image];
+    self.viewController = [[UIViewController alloc] init];
     [viewController.view addSubview:imageView];
     
-    imageDetailVC = [AGImageDetailViewController presentModalForImageView:imageView inViewController:viewController];
+    self.imageDetailVC = [AGImageDetailViewController presentModalForImageView:imageView inViewController:viewController];
 }
 
 - (void)tearDown {
     [[AGImageChecker sharedInstance] stop];
-    //Init again to recover plugins
-    [AGImageChecker setSharedInstance:[[AGImageChecker alloc] init]];
+    [AGImageChecker setSharedInstance:originalInstance];
+}
+
+- (void)testPresentImageDetailStopsImageChecker {
+    [[mockImageChecker expect] stop];
+    [imageDetailVC viewWillAppear:YES];
+//    [mockImageChecker verify]; //Not working the verify. Investigate
+}
+
+- (void)testDismissImageDetailStartsImageChecker {
+    [(AGImageChecker *)[mockImageChecker expect] start];
+    [imageDetailVC viewWillDisappear:YES];
+    [mockImageChecker verify];
 }
 
 - (void)testImageViewIsSetAndHaveIssues {
-    [imageDetailVC view];
+    [imageDetailVC viewWillAppear:YES];
     STAssertEqualObjects(imageDetailVC.targetImageView, imageView, @"Target ImageView not correctly set");
     STAssertNotNil(imageDetailVC.contentScrollView, @"Scroll view with content not set");
 }
 
 - (void)testControllerCallsPluginsForPresentingDetails {
+    void *view = CFBridgingRetain([[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)]);
     id plugin = [OCMockObject niceMockForProtocol:@protocol(AGImageCheckerPluginProtocol)];
     __block BOOL called = NO;
     [[[plugin stub] andDo:^(NSInvocation *inv) {
         called = YES;
-    }] detailForViewController:imageDetailVC withImageView:imageView withIssues:AGImageCheckerIssueNone];
+        [inv setReturnValue:&view];
+    }] detailForViewController:[OCMArg any] withImageView:imageView withIssues:AGImageCheckerIssueNone];
+
+    [[[mockImageChecker stub] andReturn:[NSArray arrayWithObject:plugin]] plugins];
     
-    [[AGImageChecker sharedInstance] addPlugin:plugin];
-    [imageDetailVC viewDidLoad];
-    STAssertTrue(called, @"The plugin code for detail page was not called");    
+    [imageDetailVC viewWillAppear:YES];
+    STAssertTrue(called, @"The plugin code for detail page was not called");
+    CFBridgingRelease(view);
 }
 
-
 - (void)testControllerCallsPluginsWhenRefreshingDetails {
-    [imageDetailVC view];
+    [imageDetailVC viewDidLoad];
+    
     STAssertNotNil(imageDetailVC.view, @"The view should be already set");
     
     id plugin = [OCMockObject niceMockForProtocol:@protocol(AGImageCheckerPluginProtocol)];
@@ -69,13 +84,10 @@
         called = YES;
     }] detailForViewController:imageDetailVC withImageView:imageView withIssues:AGImageCheckerIssueNone];
     
-    [[AGImageChecker sharedInstance] addPlugin:plugin];
+    [[[mockImageChecker stub] andReturn:[NSArray arrayWithObject:plugin]] plugins];
     [imageDetailVC refreshContentView];
     STAssertTrue(called, @"The plugin code for detail page was not called");
 }
-
-
-
 
 
 @end

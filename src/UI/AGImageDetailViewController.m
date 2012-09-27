@@ -34,7 +34,6 @@
     AGImageDetailViewController *vc = [[self alloc] init];    
     vc.targetImageView = imageView;
     vc.targetIssues = imageView.issues;
-    [[AGImageChecker sharedInstance] stop];
     [viewController presentModalViewController:vc animated:YES];
     return vc;    
 }
@@ -81,12 +80,21 @@
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissView)];
     tapGesture.delegate = self;
     [self.view addGestureRecognizer:tapGesture];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[AGImageChecker sharedInstance] stop];
     [self refreshContentView];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [[AGImageChecker sharedInstance] start];
 }
 
 - (void)dismissView {
     [self dismissModalViewControllerAnimated:YES];
-    [[AGImageChecker sharedInstance] start];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {

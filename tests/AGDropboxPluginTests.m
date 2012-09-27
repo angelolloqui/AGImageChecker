@@ -24,22 +24,22 @@
 static AGImageChecker *originalInstance = nil;
 
 - (void)setUp {
-    mockDBSession = [OCMockObject niceMockForClass:[DBSession class]];
+    self.mockDBSession = [OCMockObject niceMockForClass:[DBSession class]];
     [DBSession setSharedSession:mockDBSession];
     
     originalInstance = [AGImageChecker sharedInstance];
-    mockImageChecker = [OCMockObject niceMockForClass:[AGImageChecker class]];
+    self.mockImageChecker = [OCMockObject niceMockForClass:[AGImageChecker class]];
     [AGImageChecker setSharedInstance:mockImageChecker];
     
-    plugin = [[AGImageCheckerDropboxPlugin alloc] init];
-    mockDBPlugin = [OCMockObject partialMockForObject:plugin];
+    self.plugin = [[AGImageCheckerDropboxPlugin alloc] init];
+    self.mockDBPlugin = [OCMockObject partialMockForObject:plugin];
     
-    bundle = [NSBundle bundleForClass:[self class]];
-    imageView = [[UIImageView alloc] init];
+    self.bundle = [NSBundle bundleForClass:[self class]];
+    self.imageView = [[UIImageView alloc] init];
     imageView.image = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"square_small_image" ofType:@"png"]];
     [(id) imageView.image setName:@"imageName"];
     
-    mockImageView = [OCMockObject partialMockForObject:imageView];
+    self.mockImageView = [OCMockObject partialMockForObject:imageView];
 }
 
 - (void)tearDown {
