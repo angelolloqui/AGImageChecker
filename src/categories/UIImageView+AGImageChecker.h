@@ -15,9 +15,9 @@ typedef enum {
     AGImageCheckerIssuePartiallyHidden = 1 << 4,
     AGImageCheckerIssueMissaligned = 1 << 5,
     AGImageCheckerIssueMissing = 1 << 6
-}AGImageCheckerIssue;
+} AGImageCheckerIssue;
 
-typedef void(^AGImageViewHandler)(UIImageView *imageView);
+typedef void (^AGImageViewHandler)(UIImageView * imageView);
 
 @interface UIImageView (AGImageChecker)
 

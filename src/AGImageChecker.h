@@ -18,10 +18,10 @@
 
 @interface AGImageChecker : NSObject
 
-@property(readonly) BOOL running;
-@property(readonly, strong) UILongPressGestureRecognizer *tapGesture;
-@property(nonatomic, strong) UIViewController *rootViewController;
-@property(readonly, strong) NSArray *plugins;
+@property (readonly) BOOL running;
+@property (readonly, strong) UILongPressGestureRecognizer *tapGesture;
+@property (nonatomic, strong) UIViewController *rootViewController;
+@property (readonly, strong) NSArray *plugins;
 
 + (AGImageChecker *)sharedInstance;
 + (void)setSharedInstance:(AGImageChecker *)instance;

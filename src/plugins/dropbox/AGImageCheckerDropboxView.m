@@ -12,7 +12,7 @@
 
 @interface AGImageCheckerDropboxView ()
 
-@property(nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) UIImageView *imageView;
 
 @end
 
@@ -38,13 +38,13 @@
     
     if (self) {
         self.imageView = targetImageView;
-        UIColor *color = [UIColor colorWithRed:15/255.0f green:102/255.0f blue:162/255.0f alpha:1];
-        UIColor *redColor = [UIColor colorWithRed:126/255.0f green:0/255.0f blue:6/255.0f alpha:1];
-        UIColor *grayColor = [UIColor colorWithRed:60/255.0f green:60/255.0f blue:60/255.0f alpha:1];
+        UIColor *color = [UIColor colorWithRed:15 / 255.0f green:102 / 255.0f blue:162 / 255.0f alpha:1];
+        UIColor *redColor = [UIColor colorWithRed:126 / 255.0f green:0 / 255.0f blue:6 / 255.0f alpha:1];
+        UIColor *grayColor = [UIColor colorWithRed:60 / 255.0f green:60 / 255.0f blue:60 / 255.0f alpha:1];
         
         loginButton = [self buttonWithFrame:CGRectMake(10, 5, 200, 30) title:@"Login To Dropbox" andColor:color];
         [loginButton addTarget:self action:@selector(loginToDropbox) forControlEvents:UIControlEventTouchUpInside];
-
+        
         uploadOriginalButton = [self buttonWithFrame:CGRectMake(10, 5, 200, 30) title:@"Upload original To Dropbox" andColor:color];
         [uploadOriginalButton addTarget:self action:@selector(uploadOriginalToDropbox) forControlEvents:UIControlEventTouchUpInside];
         
@@ -65,7 +65,7 @@
             uploadRenderButton.enabled = NO;
             downloadButton.enabled = NO;
             removeButton.enabled = NO;
-        }        
+        }
     }
     
     return self;
@@ -73,6 +73,7 @@
 
 - (UIButton *)buttonWithFrame:(CGRect)frame title:(NSString *)title andColor:(UIColor *)color {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    
     button.frame = frame;
     [button setTitle:title forState:UIControlStateNormal];
     [button setTitleColor:[UIColor colorWithWhite:0.85 alpha:1] forState:UIControlStateNormal];
@@ -129,7 +130,7 @@
     loginButton.hidden = logged;
     logoutButton.hidden = !logged;
     uploadOriginalButton.hidden = !logged;
-    uploadRenderButton.hidden = !logged;    
+    uploadRenderButton.hidden = !logged;
     downloadButton.hidden = !removeButton.hidden || !logged;
 }
 

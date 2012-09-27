@@ -30,34 +30,38 @@
 @synthesize targetImageView;
 
 static AGImageCheckerDropboxPlugin *pluginInstance = nil;
-+ (void)addPluginWithAppKey:(NSString *)appKey appSecret:(NSString *)appSecret {        
++ (void)addPluginWithAppKey:(NSString *)appKey appSecret:(NSString *)appSecret {
     static dispatch_once_t onceToken;
+    
     dispatch_once(&onceToken, ^{
         pluginInstance = [[self alloc] initWithAppKey:appKey appSecret:appSecret];
-    });    
+    });
     [[AGImageChecker sharedInstance] addPlugin:pluginInstance];
 }
 
-
-+ (BOOL)handleOpenURL:(NSURL *)url {    
++ (BOOL)handleOpenURL:(NSURL *)url {
     if ([[DBSession sharedSession] handleOpenURL:url]) {
         if (![[DBSession sharedSession] isLinked]) {
-            NSLog(@"Problem login with Dropbox!");        
+            NSLog(@"Problem login with Dropbox!");
         }
+        
         [pluginInstance.detailController refreshContentView];
         return YES;
     }
+    
     return NO;
 }
 
 - (id)initWithAppKey:(NSString *)appKey appSecret:(NSString *)appSecret {
     self = [super init];
+    
     if (self) {
-        DBSession* dbSession = [[AGDBSession alloc] initWithAppKey:appKey
-                                                       appSecret:appSecret
-                                                            root:kDBRootAppFolder];
+        DBSession *dbSession = [[AGDBSession alloc] initWithAppKey:appKey
+                                                         appSecret:appSecret
+                                                              root:kDBRootAppFolder];
         [DBSession setSharedSession:dbSession];
     }
+    
     return self;
 }
 
@@ -67,6 +71,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     if ([imageView localDropboxImageExists]) {
         if (imageView.originalImage == nil) {
             UIImage *image = [UIImage imageWithContentsOfFile:[imageView localDropboxImagePath]];
+            
             if (image) {
                 imageView.originalImage = imageView.image;
                 imageView.image = image;
@@ -74,6 +79,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
         }
         else {
             imageView.layer.borderWidth = 1;
+            
             if (imageView.issues) {
                 imageView.layer.borderColor = [UIColor colorWithRed:0.5 green:0 blue:1 alpha:1].CGColor;
             }
@@ -97,13 +103,14 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
     AGImageCheckerDropboxView *detailView = [[AGImageCheckerDropboxView alloc] initWithImageView:imageView
                                                                                        andIssues:issues
                                                                                         andWidth:viewController.view.frame.size.width];
+    
     detailView.uploadOriginalHandler = ^(UIImageView *imageView) {
         [self uploadToDropbox:imageView original:YES];
     };
     detailView.uploadRenderedHandler = ^(UIImageView *imageView) {
         [self uploadToDropbox:imageView original:NO];
     };
-
+    
     detailView.downloadHandler = ^(UIImageView *imageView) {
         [self downloadFromDropbox:imageView];
     };
@@ -129,10 +136,12 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 
 - (void)uploadToDropbox:(UIImageView *)imageView original:(BOOL)original {
     NSString *remotePath = [imageView dropboxImagePath];
+    
     if (remotePath) {
         [detailController.indicator startAnimating];
         detailController.view.userInteractionEnabled = NO;
         UIImage *image = nil;
+        
         if (original) {
             image = imageView.image;
         }
@@ -141,17 +150,19 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
             renderedImageView.image = imageView.image;
             renderedImageView.contentMode = imageView.contentMode;
             renderedImageView.clipsToBounds = YES;
-            image = [self imageWithView:renderedImageView];            
+            image = [self imageWithView:renderedImageView];
         }
+        
         NSString *tempImagePath = [self saveImageIntoTemporaryLocation:image];
         NSString *destDir = @"/";
         [self.dbClient uploadFile:remotePath toPath:destDir
                     withParentRev:nil fromPath:tempImagePath];
-    }    
+    }
 }
 
 - (void)downloadFromDropbox:(UIImageView *)imageView {
     NSString *remotePath = [imageView dropboxImagePath];
+    
     if (remotePath) {
         [detailController.indicator startAnimating];
         detailController.view.userInteractionEnabled = NO;
@@ -160,11 +171,12 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
         NSString *directory = [localPath stringByDeletingLastPathComponent];
         [[NSFileManager defaultManager] createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
         [self.dbClient loadFile:remotePath intoPath:localPath];
-    }    
+    }
 }
 
 - (void)removeFromLocalStorage:(UIImageView *)imageView {
     NSString *localImagePath = [imageView localDropboxImagePath];
+    
     [[NSFileManager defaultManager] removeItemAtPath:localImagePath error:nil];
     [self didFinishCalculatingIssues:imageView];
     [detailController refreshContentView];
@@ -188,7 +200,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 - (UIImage *)imageWithView:(UIView *)view {
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.opaque, 0.0);
     [view.layer renderInContext:UIGraphicsGetCurrentContext()];
-    UIImage * img = UIGraphicsGetImageFromCurrentImageContext();
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return img;
 }
@@ -196,6 +208,7 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 - (NSString *)saveImageIntoTemporaryLocation:(UIImage *)image {
     NSString *randomPath = [NSString stringWithFormat:@"%@%d.png", NSTemporaryDirectory(), rand()];
     NSData *binaryImageData = UIImagePNGRepresentation(image);
+    
     [binaryImageData writeToFile:randomPath atomically:YES];
     return randomPath;
 }
@@ -207,33 +220,33 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
         dbClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
         dbClient.delegate = self;
     }
+    
     return dbClient;
 }
 
 #pragma mark DBRestClientDelegate
 
-- (void)restClient:(DBRestClient*)client loadedFile:(NSString*)destPath {
+- (void)restClient:(DBRestClient *)client loadedFile:(NSString *)destPath {
     [self didFinishCalculatingIssues:targetImageView];
     [detailController refreshContentView];
     [detailController.indicator stopAnimating];
     detailController.view.userInteractionEnabled = YES;
 }
 
-- (void)restClient:(DBRestClient*)client loadFileFailedWithError:(NSError*)error {
+- (void)restClient:(DBRestClient *)client loadFileFailedWithError:(NSError *)error {
     [detailController.indicator stopAnimating];
     detailController.view.userInteractionEnabled = YES;
 }
 
-- (void)restClient:(DBRestClient*)client uploadedFile:(NSString*)destPath from:(NSString*)srcPath
-          metadata:(DBMetadata*)metadata {
+- (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath
+          metadata:(DBMetadata *)metadata {
     [detailController.indicator stopAnimating];
     detailController.view.userInteractionEnabled = YES;
 }
 
-- (void)restClient:(DBRestClient*)client uploadFileFailedWithError:(NSError*)error {
+- (void)restClient:(DBRestClient *)client uploadFileFailedWithError:(NSError *)error {
     [detailController.indicator stopAnimating];
     detailController.view.userInteractionEnabled = YES;
 }
-
 
 @end

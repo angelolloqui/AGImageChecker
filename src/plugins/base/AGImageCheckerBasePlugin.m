@@ -16,13 +16,12 @@
 #define CGSizeIsBiggerThan(size1, size2) ((size1.width > size2.width) || (size1.height > size2.height))
 #define CGSizeIsStrictlyBiggerThan(size1, size2) ((size1.width > size2.width) && (size1.height > size2.height))
 #define CGSizeIsProportionalTo(size1, size2) ((size1.width / size2.width) == (size1.height / size2.height))
-#define floatIsDecimal(num) (num - ((int) num) != 0.0f)
+#define floatIsDecimal(num) (num - ((int)num) != 0.0f)
 
 
 @implementation AGImageCheckerBasePlugin
 
 - (AGImageCheckerIssue)calculateIssues:(UIImageView *)imageView withIssues:(AGImageCheckerIssue)issues {
-    
     //Check Missing images
     if (imageView.image == nil || [imageView.image isEmptyImage]) {
         issues = AGImageCheckerIssueMissing;
@@ -42,10 +41,12 @@
             if ((imgSize.width != viewSize.width) || (imgSize.height != viewSize.height)) {
                 issues |= AGImageCheckerIssueResized;
             }
+            
             if (CGSizeIsBiggerThan(viewSize, imgSize)) {
                 issues |= AGImageCheckerIssueBlurry;
             }
-            if (!CGSizeIsProportionalTo(viewSize, imgSize)){
+            
+            if (!CGSizeIsProportionalTo(viewSize, imgSize)) {
                 issues |= AGImageCheckerIssuePartiallyHidden;
             }
         }
@@ -66,7 +67,8 @@
             else if (CGSizeIsBiggerThan(imgSize, viewSize)) {
                 issues |= AGImageCheckerIssueResized;
             }
-            if (!CGSizeIsProportionalTo(viewSize, imgSize)){
+            
+            if (!CGSizeIsProportionalTo(viewSize, imgSize)) {
                 issues |= AGImageCheckerIssueStretched;
             }
         }
@@ -79,6 +81,7 @@
             if (imageView.contentMode == UIViewContentModeCenter) {
                 CGFloat deltaX = (imgSize.width - viewSize.width) / 2.0;
                 CGFloat deltaY = (imgSize.height - viewSize.height) / 2.0;
+                
                 if ((floatIsDecimal(deltaX)) || (floatIsDecimal(deltaY))) {
                     issues |= AGImageCheckerIssueBlurry;
                     issues |= AGImageCheckerIssueMissaligned;
@@ -92,14 +95,17 @@
     //Note: we can not check the image against the window because it may be in a scrollview, animating, with a float contentOffset, but that is correct if the image is correctly aligned within the scroll
     if (!(issues & AGImageCheckerIssueMissaligned)) {
         UIView *view = imageView;
+        
         while (view) {
             //Check if the view is correctly aligned
             CGPoint viewPosition = view.frame.origin;
+            
             if ((floatIsDecimal(viewPosition.x)) || (floatIsDecimal(viewPosition.y))) {
                 issues |= AGImageCheckerIssueBlurry;
                 issues |= AGImageCheckerIssueMissaligned;
                 break;
             }
+            
             view = view.superview;
         }
     }
@@ -109,6 +115,7 @@
 
 - (void)didFinishCalculatingIssues:(UIImageView *)imageView {
     AGImageCheckerIssue issues = imageView.issues;
+    
     imageView.layer.borderWidth = 0;
     imageView.layer.borderColor = nil;
     
@@ -131,6 +138,7 @@
         if (issues & AGImageCheckerIssueMissing) {
             imageView.layer.borderWidth = 4;
             imageView.layer.borderColor = [UIColor redColor].CGColor;
+            
             if (imageView.image.name) {
                 NSLog(@"[AGImageChecker] Could not load the image named \"%@\"", imageView.image.name);
             }
@@ -139,11 +147,12 @@
 }
 
 - (UIView *)detailForViewController:(UIViewController *)viewController
-            withImageView:(UIImageView *)imageView
-               withIssues:(AGImageCheckerIssue)issues {
+                      withImageView:(UIImageView *)imageView
+                         withIssues:(AGImageCheckerIssue)issues {
     AGImageCheckerBaseDetailView *detailView = [[AGImageCheckerBaseDetailView alloc] initWithImageView:imageView
                                                                                              andIssues:issues
                                                                                               andWidth:viewController.view.frame.size.width];
+    
     return detailView;
 }
 

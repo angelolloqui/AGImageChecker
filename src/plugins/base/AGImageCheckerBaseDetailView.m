@@ -13,7 +13,7 @@
 static NSInteger titleWidth = 120;
 static NSInteger padding = 10;
 
-@interface AGImageCheckerBaseDetailView()
+@interface AGImageCheckerBaseDetailView ()
 
 @property (readwrite, strong) UILabel *imageViewPositionLabel;
 @property (readwrite, strong) UILabel *imageViewSizeLabel;
@@ -48,6 +48,7 @@ static NSInteger padding = 10;
     if (self) {
         self.maxPoint = CGPointMake(padding, padding);
         NSString *imageName = targetImageView.accessibilityLabel;
+        
         if ([imageName length] <= 0) {
             imageName = targetImageView.image.name;
         }
@@ -72,6 +73,7 @@ static NSInteger padding = 10;
 
 - (UILabel *)addLabelWithTitle:(NSString *)title andText:(NSString *)text {
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(padding, maxPoint.y, titleWidth, 22)];
+    
     titleLabel.textColor = [UIColor grayColor];
     titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.text = title;
@@ -86,11 +88,10 @@ static NSInteger padding = 10;
     [label sizeToFit];
     [self addSubview:label];
     
-    maxPoint.y += MAX(22, label.frame.size.height) + (int) (padding / 2);
+    maxPoint.y += MAX(22, label.frame.size.height) + (int)(padding / 2);
     maxPoint.x = MAX(maxPoint.x, CGRectGetMaxX(label.frame) + padding);
     return label;
 }
-
 
 - (UIImageView *)addImageViewWithTitle:(NSString *)title andImage:(UIImage *)image andSize:(CGSize)size andMode:(UIViewContentMode)mode {
     [self addLabelWithTitle:title andText:@""];
@@ -107,7 +108,6 @@ static NSInteger padding = 10;
     return imageView;
 }
 
-
 - (NSArray *)descriptionsForIssues:(AGImageCheckerIssue)issues {
     NSMutableArray *issuesDescriptions = [[NSMutableArray alloc] initWithCapacity:6];
     
@@ -118,40 +118,50 @@ static NSInteger padding = 10;
         if (issues & AGImageCheckerIssueResized) {
             [issuesDescriptions addObject:@"Image resized"];
         }
+        
         if (issues & AGImageCheckerIssueBlurry) {
             [issuesDescriptions addObject:@"Image may be blurry"];
         }
+        
         if (issues & AGImageCheckerIssueStretched) {
             [issuesDescriptions addObject:@"Image is streteched"];
         }
+        
         if (issues & AGImageCheckerIssuePartiallyHidden) {
             [issuesDescriptions addObject:@"Image may be partially hidden"];
         }
+        
         if (issues & AGImageCheckerIssueMissaligned) {
             [issuesDescriptions addObject:@"Image is missaligned"];
         }
+        
         if (issues & AGImageCheckerIssueMissing) {
             [issuesDescriptions addObject:@"Image not found"];
         }
     }
+    
     return issuesDescriptions;
 }
 
 - (id)controllerForView:(UIView *)view {
     id responder = view;
     UIView *superview = view.superview;
+    
     while ((responder = [responder nextResponder])) {
-        if (responder != superview){
+        if (responder != superview) {
             return responder;
         }
+        
         superview = [responder superview];
     }
+    
     return responder;
 }
 
 - (NSString *)contentModeToString:(UIViewContentMode)mode {
     static NSArray *modes = nil;
     static dispatch_once_t modesToken;
+    
     dispatch_once(&modesToken, ^{
         modes = [NSArray arrayWithObjects:
                  @"UIViewContentModeScaleToFill",
