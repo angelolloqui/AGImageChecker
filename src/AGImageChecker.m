@@ -140,7 +140,7 @@ static AGImageChecker *sharedInstance = nil;
         if ([self.rootViewController.view isDescendantOfView:wnd])
             return wnd;
     }
-    return nil;
+    return [[UIApplication sharedApplication] keyWindow];
 }
 
 - (void)addPlugin:(id<AGImageCheckerPluginProtocol>)plugin {

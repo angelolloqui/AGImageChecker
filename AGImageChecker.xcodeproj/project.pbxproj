@@ -22,6 +22,7 @@
 		0BBF611A15F687BA005175C8 /* square_small_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBF611715F687BA005175C8 /* square_small_image.png */; };
 		0BCC65C216073744007A638B /* AGImageCheckerBaseDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCC65C116073744007A638B /* AGImageCheckerBaseDetailView.m */; };
 		0BD7D0E915FA440500BDCA60 /* AGImageDetailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BD7D0E815FA440500BDCA60 /* AGImageDetailTests.m */; };
+		0BDC5C86161479E00050016D /* coverage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BDC5C85161479E00050016D /* coverage.m */; };
 		0BF8C14F15F661FE00142BDF /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BF8C14E15F661FE00142BDF /* SenTestingKit.framework */; };
 		0BF8C15915F661FE00142BDF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0BF8C15715F661FE00142BDF /* InfoPlist.strings */; };
 		0BF8C16715F6620A00142BDF /* AGImageChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF8C16415F6620A00142BDF /* AGImageChecker.m */; };
@@ -73,6 +74,7 @@
 		0BCC65C116073744007A638B /* AGImageCheckerBaseDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGImageCheckerBaseDetailView.m; sourceTree = "<group>"; };
 		0BD7D0E715FA440500BDCA60 /* AGImageDetailTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AGImageDetailTests.h; path = tests/AGImageDetailTests.h; sourceTree = SOURCE_ROOT; };
 		0BD7D0E815FA440500BDCA60 /* AGImageDetailTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AGImageDetailTests.m; path = tests/AGImageDetailTests.m; sourceTree = SOURCE_ROOT; };
+		0BDC5C85161479E00050016D /* coverage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = coverage.m; path = tests/coverage.m; sourceTree = SOURCE_ROOT; };
 		0BF8C14B15F661FE00142BDF /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0BF8C14E15F661FE00142BDF /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		0BF8C15615F661FE00142BDF /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
@@ -271,6 +273,7 @@
 				0BF8C15615F661FE00142BDF /* Tests-Info.plist */,
 				0BF8C15715F661FE00142BDF /* InfoPlist.strings */,
 				0BF8C15D15F661FE00142BDF /* Tests-Prefix.pch */,
+				0BDC5C85161479E00050016D /* coverage.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -421,6 +424,7 @@
 				0BFE86A51613446300BB1BF3 /* AGDBSession.m in Sources */,
 				0BFE86A61613446300BB1BF3 /* UIImageView+AGImageCheckerDropbox.m in Sources */,
 				0BFE86B6161347B400BB1BF3 /* AGDropboxPluginTests.m in Sources */,
+				0BDC5C86161479E00050016D /* coverage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
