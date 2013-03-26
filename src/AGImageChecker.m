@@ -109,16 +109,18 @@ static AGImageChecker *sharedInstance = nil;
 - (void)stop {
     if (self.running) {
         self.running = NO;
-        [UIImageView stopCheckingImages];
-        [UIImageView setImageIssuesHandler:nil];
-        [UIImageView setImageCheckHandler:nil];
         [UIImage stopSavingNames];
-        [tapGesture.view removeGestureRecognizer:tapGesture];
-        NSArray *loadedImageViews = [self imageViewsInto:self.rootWindow];
+        [UIImageView stopCheckingImages];
         
+        NSArray *loadedImageViews = [self imageViewsInto:self.rootWindow];
         for (UIImageView *imageView in loadedImageViews) {
             imageView.issues = AGImageCheckerIssueNone;
         }
+        
+        [UIImageView setImageIssuesHandler:nil];
+        [UIImageView setImageCheckHandler:nil];
+        
+        [tapGesture.view removeGestureRecognizer:tapGesture];
     }
 }
 
