@@ -10,8 +10,24 @@ AGImageChecker
 Its plugin architecture allows developers to easily add funcionality to the library. For example, the Dropbox plugin, which provides Dropbox synchronization capabilities to export and import images into your project on runtime and speed up communication with designers. 
 
 
-Installation
-------------
+Installation via Pods
+---------------------
+You can install the whole tool by setting in your podfile:
+```
+pod 'AGImageChecker'
+```
+
+or alternatively, indicated which of the modules to use:
+
+```
+pod 'AGImageChecker/Base'
+pod 'AGImageChecker/Dropbox'
+```
+
+Manual Installation
+--------------------
+
+The recommended intallation is by using [CocoaPods](http://cocoapods.org/). However, if you are not using pods in your project, you can still proceed by doing:
 
 1. Add the `AGImageChecker/src` files to your project
 2. Remove unwanted plugins into the plugin folder. The `base` plugin should be there if you want the basic AGImageChecker functionality.
