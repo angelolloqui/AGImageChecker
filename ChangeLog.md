@@ -1,3 +1,11 @@
+V.1.0.1 - 18/04/2013
+=======
+Update with small bug fixes and custom colors
+- Added option to use custom colors in Base Plugin
+- Fixed problem with ARC retaining BOOL swizzled value
+- Fixed problem stopping image checker in runtime
+- Fixed problem with path in dropbox (iOS6)
+
 V.1.0.0 - 27/09/2012
 =======
 Official first release of the AGImageChecker library. Includes the following changes:
