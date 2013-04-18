@@ -41,7 +41,7 @@
     if (!filename)
         return nil;
     
-    return [[self dropboxBasePath] stringByAppendingString:filename];
+    return [[self dropboxBasePath] stringByAppendingPathComponent:filename];
 }
 
 - (BOOL)localDropboxImageExists {
