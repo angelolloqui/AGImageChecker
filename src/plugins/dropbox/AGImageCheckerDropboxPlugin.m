@@ -68,6 +68,10 @@ static AGImageCheckerDropboxPlugin *pluginInstance = nil;
 #pragma mark AGImageCheckerPluginProtocol
 
 - (void)didFinishCalculatingIssues:(UIImageView *)imageView {
+    if (imageView.originalImage && ![imageView.originalImage.name isEqualToString:imageView.image.name]) {
+        imageView.originalImage = nil;
+    }
+    
     if ([imageView localDropboxImageExists]) {
         if (imageView.originalImage == nil) {
             UIImage *image = [UIImage imageWithContentsOfFile:[imageView localDropboxImagePath]];
