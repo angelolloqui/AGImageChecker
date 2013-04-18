@@ -11,4 +11,7 @@
 
 @interface AGImageCheckerBasePlugin : NSObject <AGImageCheckerPluginProtocol>
 
+- (UIColor *)colorForIssueType:(AGImageCheckerIssue)issue;
+- (void)setColor:(UIColor *)color forIssueType:(AGImageCheckerIssue)issue;
+
 @end

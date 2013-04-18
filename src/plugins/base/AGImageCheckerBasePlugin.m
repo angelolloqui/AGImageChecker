@@ -19,7 +19,39 @@
 #define floatIsDecimal(num) (num - ((int)num) != 0.0f)
 
 
+
+@interface AGImageCheckerBasePlugin()
+@property(strong, nonatomic) NSMutableDictionary *colorsDictionary;
+@end
+
 @implementation AGImageCheckerBasePlugin
+
+#pragma mark - Public API
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        self.colorsDictionary = [@{
+                                  @(AGImageCheckerIssueResized): [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.5],
+                                  @(AGImageCheckerIssueBlurry): [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.8],
+                                  @(AGImageCheckerIssueStretched): [UIColor orangeColor],
+                                  @(AGImageCheckerIssuePartiallyHidden): [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.5],
+                                  @(AGImageCheckerIssueMissaligned): [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.5],
+                                  @(AGImageCheckerIssueMissing): [UIColor redColor]
+                                  } mutableCopy];
+    }
+    return self;
+}
+
+- (UIColor *)colorForIssueType:(AGImageCheckerIssue)issue {
+    return self.colorsDictionary[@(issue)];
+}
+
+- (void)setColor:(UIColor *)color forIssueType:(AGImageCheckerIssue)issue {
+    self.colorsDictionary[@(issue)] = color;
+}
+
+#pragma mark - AGImageCheckerPluginProtocol
 
 - (AGImageCheckerIssue)calculateIssues:(UIImageView *)imageView withIssues:(AGImageCheckerIssue)issues {
     //Check Missing images
@@ -120,25 +152,18 @@
     imageView.layer.borderColor = nil;
     
     if (!imageView.hidden && imageView.alpha > 0) {
-        if (issues != AGImageCheckerIssueNone) {
-            imageView.layer.borderWidth = 1;
-            imageView.layer.borderColor = [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.5].CGColor;
-        }
-        
-        if (issues & AGImageCheckerIssueBlurry) {
-            imageView.layer.borderWidth = 2;
-            imageView.layer.borderColor = [UIColor colorWithRed:1.0 green:0.8 blue:0.1 alpha:0.8].CGColor;
-        }
-        
-        if (issues & AGImageCheckerIssueStretched) {
-            imageView.layer.borderWidth = 2;
-            imageView.layer.borderColor = [UIColor orangeColor].CGColor;
+        AGImageCheckerIssue issueType = AGImageCheckerIssueMissing;
+        while (issueType > AGImageCheckerIssueNone) {
+            if (issues & issueType) {
+                imageView.layer.borderWidth = 2;
+                imageView.layer.borderColor = [self colorForIssueType:issueType].CGColor;
+                break;
+            }
+            issueType = issueType >> 1;
         }
         
         if (issues & AGImageCheckerIssueMissing) {
             imageView.layer.borderWidth = 4;
-            imageView.layer.borderColor = [UIColor redColor].CGColor;
-            
             if (imageView.image.name) {
                 NSLog(@"[AGImageChecker] Could not load the image named \"%@\"", imageView.image.name);
             }

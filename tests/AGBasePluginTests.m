@@ -7,6 +7,7 @@
 //
 
 #import "AGBasePluginTests.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation AGBasePluginTests
 
@@ -231,6 +232,75 @@
     [topView addSubview:parentView];
     //    [squareBigView checkImage];
     STAssertTrue([plugin calculateIssues:squareBigView withIssues:AGImageCheckerIssueNone] == (AGImageCheckerIssueBlurry | AGImageCheckerIssueMissaligned), @"The image into a parent missaligned should be blurry and missaligned");
+}
+
+- (void)testDefaultColorsExist {
+    STAssertNil([plugin colorForIssueType:AGImageCheckerIssueNone], @"Default color should not be assigned when no issues");
+    STAssertNotNil([plugin colorForIssueType:AGImageCheckerIssueResized], @"Default color should be assigned");
+    STAssertNotNil([plugin colorForIssueType:AGImageCheckerIssueBlurry], @"Default color should be assigned");
+    STAssertNotNil([plugin colorForIssueType:AGImageCheckerIssueStretched], @"Default color should be assigned");
+    STAssertNotNil([plugin colorForIssueType:AGImageCheckerIssuePartiallyHidden], @"Default color should be assigned");
+    STAssertNotNil([plugin colorForIssueType:AGImageCheckerIssueMissaligned], @"Default color should be assigned");
+    STAssertNotNil([plugin colorForIssueType:AGImageCheckerIssueMissing], @"Default color should be assigned");    
+}
+
+
+- (void)testChangeColorsWorks {
+    UIColor *color = [UIColor blackColor];
+    UIColor *color2 = [UIColor grayColor];
+    
+    STAssertFalse([[plugin colorForIssueType:AGImageCheckerIssueResized] isEqual:color], @"Color should be different");
+    [plugin setColor:color forIssueType:AGImageCheckerIssueResized];
+    STAssertTrue([[plugin colorForIssueType:AGImageCheckerIssueResized] isEqual:color], @"Color should have been changed");
+
+    STAssertFalse([[plugin colorForIssueType:AGImageCheckerIssueBlurry] isEqual:color], @"Color for other issue should be different");
+    [plugin setColor:color2 forIssueType:AGImageCheckerIssueBlurry];
+    STAssertTrue([[plugin colorForIssueType:AGImageCheckerIssueBlurry] isEqual:color2], @"Color should have been changed");
+    STAssertTrue([[plugin colorForIssueType:AGImageCheckerIssueResized] isEqual:color], @"Color for other issue should have been preserved");
+}
+
+- (void)testCorrectColorIsUsedInImageViews {
+    UIColor *color1 = [UIColor colorWithWhite:1 alpha:1];
+    UIColor *color2 = [UIColor colorWithWhite:.9 alpha:1];
+    UIColor *color3 = [UIColor colorWithWhite:.8 alpha:1];
+    UIColor *color4 = [UIColor colorWithWhite:.7 alpha:1];
+    UIColor *color5 = [UIColor colorWithWhite:.6 alpha:1];
+    UIColor *color6 = [UIColor colorWithWhite:.5 alpha:1];
+    
+    [plugin setColor:color1 forIssueType:AGImageCheckerIssueResized];
+    [plugin setColor:color2 forIssueType:AGImageCheckerIssueBlurry];
+    [plugin setColor:color3 forIssueType:AGImageCheckerIssueStretched];
+    [plugin setColor:color4 forIssueType:AGImageCheckerIssuePartiallyHidden];
+    [plugin setColor:color5 forIssueType:AGImageCheckerIssueMissaligned];
+    [plugin setColor:color6 forIssueType:AGImageCheckerIssueMissing];
+    
+    rectView.issues = AGImageCheckerIssueResized;
+    [plugin didFinishCalculatingIssues:rectView];
+    STAssertTrue(rectView.layer.borderColor == color1.CGColor, @"Incorrect color used");
+    
+    rectView.issues |= AGImageCheckerIssueBlurry;
+    [plugin didFinishCalculatingIssues:rectView];
+    STAssertTrue(rectView.layer.borderColor == color2.CGColor, @"Incorrect color used");
+
+    rectView.issues |= AGImageCheckerIssueStretched;
+    [plugin didFinishCalculatingIssues:rectView];
+    STAssertTrue(rectView.layer.borderColor == color3.CGColor, @"Incorrect color used");
+
+    rectView.issues |= AGImageCheckerIssuePartiallyHidden;
+    [plugin didFinishCalculatingIssues:rectView];
+    STAssertTrue(rectView.layer.borderColor == color4.CGColor, @"Incorrect color used");
+
+    rectView.issues |= AGImageCheckerIssueMissaligned;
+    [plugin didFinishCalculatingIssues:rectView];
+    STAssertTrue(rectView.layer.borderColor == color5.CGColor, @"Incorrect color used");
+
+    rectView.issues |= AGImageCheckerIssueMissing;
+    [plugin didFinishCalculatingIssues:rectView];
+    STAssertTrue(rectView.layer.borderColor == color6.CGColor, @"Incorrect color used");
+    
+    rectView.issues = AGImageCheckerIssueNone;
+    [plugin didFinishCalculatingIssues:rectView];
+    STAssertNil(rectView.layer.borderColor, @"No color should be used when no issues");
 }
 
 
